@@ -182,7 +182,7 @@ def frequency_array(seq, size):
     return fa.values()
 
 #working for all except large and forum
-def old_find_clump_patterns(genome, k, l, t):
+def old_working_find_clump_patterns(genome, k, l, t):
     #frequency = word:((laststartindex, lastendindex), count in this window)
     frequency = {}
     clump_patterns = set()
@@ -208,7 +208,7 @@ def old_find_clump_patterns(genome, k, l, t):
         i += 1
     return clump_patterns
 
-def find_clump_patterns(genome, k, l, t):
+def old_not_working_find_clump_patterns(genome, k, l, t):
     # if my LAST si is not in window, I MUST start counting again (and reset indexes)
     # if my first starting index is not in window, pop first si, dont increment count
 
@@ -253,13 +253,41 @@ def find_clump_patterns(genome, k, l, t):
         i += 1
     return clump_patterns
 
-#OKKKK
+def find_clump_patterns(genome, k, l, t):
+    # pkmers = arrange_repeated(pool, k)
+    # fa = {p:[] for p in pkmers}
+
+    fa = {}
+    clump_patterns = set()
+    i = k
+    # for i in range(len(genome) - (k - 1)):
+    while i <= len(genome):
+        si = i - k
+        word = genome[si:i]
+        try:
+            fa[word].append(si)
+        except KeyError:
+            fa[word] = [si]
+        else:
+            fq = fa[word]
+            if len(fq) >= t:
+                last_fq_ix = len(fq) - 1
+                #TODO melhorar essa verificacao, quando ainda nao atingiu a janela t se torna negativo
+                todo = fq[last_fq_ix - t]
+                primeiro_t_ix = todo if todo >= 0 else 0
+                if i - primeiro_t_ix <= l:
+                    clump_patterns.add(word)
+        i += 1
+    return clump_patterns
+
+# print len(arrange_repeated("ACGT", 9))
+
 # print find_clump_patterns("GCTGGCTGGCTGGCTGG", 9, 17, 3)
-print find_clump_patterns("AGAGAGAGAGA", 3, 9, 4)
+# print find_clump_patterns("AGAGAGAGAGA", 3, 9, 4)
 # print find_clump_patterns("AGAGA", 3, 4, 2)
 # print find_clump_patterns("AGAG", 1, 4, 2)
-# print find_clump_patterns("AGAG", 2, 3, 2)
-# print find_clump_patterns("BAG", 3, 3, 1)
+print find_clump_patterns("AGAG", 2, 3, 2)
+# print find_clump_patterns("TAG", 3, 3, 1)
 # print os.chdir("data")
 # print len(find_clump_patterns(open("data/test_clump.txt").read(), 12, 595, 19))
 # print ' '.join(find_clump_patterns(open("data/test_clump.txt").read(), 12, 595, 19))
