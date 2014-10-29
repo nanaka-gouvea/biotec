@@ -1,4 +1,7 @@
 __author__ = 'natalia'
+import os
+from os import path
+import collections
 # coding=utf-8
 
 complement = {'A':'T', 'T':'A', 'C':'G', 'G':'C'}
@@ -132,7 +135,54 @@ def most_frequent_words_aprox(text, size, d):
                     frequents.append(word)
     return ' '.join(frequents)
 
-def find_clump_patterns(genome, k, l, t):
+def anagrams(word):
+    if len(word) <= 1:
+        return word
+    result = []
+    for ana in anagrams(word[1:]):
+        for i in range(len(word)):
+            result.append(ana[:i] + word[0] + ana[i:])
+    return sorted(result)
+
+def arrange_repeated(letters, size):
+    if size == 0:
+        return []
+    result = []
+    if size == 1:
+        for l in letters:
+            result.append(l)
+        return result
+    for a in arrange_repeated(letters, size - 1):
+        for i in range(len(letters)):
+            result.append(letters[i] + a[:i] + a[i:])
+    return sorted(result)
+
+pool = "ACGT"
+def pattern_to_number(pattern):
+    possible = arrange_repeated(pool, len(pattern))
+    for i in range(len(possible)):
+        if possible[i] == pattern:
+            return i
+# print pattern_to_number("ATGCAA")
+
+def number_to_pattern(i, size):
+    possible = arrange_repeated(pool, size)
+    return possible[i]
+
+# print number_to_pattern(5437, 8)
+
+def frequency_array(seq, size):
+    #overlapping counts!
+    possible = arrange_repeated(pool, size)
+    fa = collections.OrderedDict()
+    for p in possible:
+        fa[p] = 0
+    for i in range(len(seq) - (size - 1)):
+        fa[seq[i:i + size]] += 1
+    return fa.values()
+
+#working for all except large and forum
+def old_find_clump_patterns(genome, k, l, t):
     #frequency = word:((laststartindex, lastendindex), count in this window)
     frequency = {}
     clump_patterns = set()
@@ -146,7 +196,7 @@ def find_clump_patterns(genome, k, l, t):
         except KeyError:
             frequency[word] = ((si, i), count)
         else:
-            # if the word's last start index is inside my current window, and the last end index is before my current start (no overlapping), increment counter
+            # if the word's last start index is inside my current window, increment counter
             #(endindex is exclusive)
             if f[0][0] >= i - l: #in window
                 count = f[1] + 1
@@ -158,8 +208,11 @@ def find_clump_patterns(genome, k, l, t):
         i += 1
     return clump_patterns
 
-def new_find_clump_patterns(genome, k, l, t):
-    #frequency = word:(starting indexes, count in this window, starting indexes index)
+def find_clump_patterns(genome, k, l, t):
+    # if my LAST si is not in window, I MUST start counting again (and reset indexes)
+    # if my first starting index is not in window, pop first si, dont increment count
+
+    #frequency = word:(starting indexes, count in this window, starting indexes index, last si)
     frequency = {}
     clump_patterns = set()
     i = k
@@ -172,58 +225,54 @@ def new_find_clump_patterns(genome, k, l, t):
         try:
             f = frequency[word]
         except KeyError:
-            frequency[word] = [[si], count, 0]
+            frequency[word] = [[si], count, 0, si]
         else:
             # update start indexes
             start_indexes = f[0]
             start_indexes.append(si)
 
             count = f[1]
-            fst_start = start_indexes[f[2]]
-            # if the word's first start index is inside my current window, increment count ((endindex is exclusive))
-            if fst_start >= i - l:
-                #in window
-                count += 1
-                frequency[word][1] = count
+            #f[2] = start index index, uses index as parameter instead of 'pop'ing firsts, for performance
+            f_start = start_indexes[f[2]]
+            #if last start index not in window, restart counting
+            if f[3] <= i - l:
+                count = 1
+                frequency[word] = [[si], count, 0, si]
             else:
-                #not in window, do not increment counting, update first start index (remove first)
-                frequency[word][1] = count
-                frequency[word][2] += 1
+                # if the word's first start index is inside my current window, increment count ((endindex is exclusive))
+                if f_start >= i - l:
+                    #in window
+                    count += 1
+                    frequency[word][1] = count
+                else:
+                    #not in window, do not alter counting, update first start index (first start index moves to next)
+                    frequency[word][2] += 1
         if count == t:
             #if counter in this window reaches minimun, it's a winner
             clump_patterns.add(word)
         i += 1
     return clump_patterns
 
-# print find_clump_patterns("CCGACAGGCTAGTCTATAATCCTGAGGCGTTACCCCAATACCGTTTACCGTGGGATTTGCTACTACAACTCCTGAGCGCTACATGTACGAAACCATGTTATGTAT", 4, 30, 3)
-print pattern_count("TACGCATTACAAAGCACA", "AA")
-# print ' '.join(str(x) for x in skew_g_c("GAGCCACCGCGATA"))
-# print ' '.join(str(x) for x in minimum_skew(open("data/skew.txt").read()))
-# print ' '.join(str(x) for x in minimum_skew("CATTCCAGTACTTCATGATGGCGTGAAGA"))
-
-# print find_clump_patterns("AABABABBABA", 3, 9, 3)
-# print find_clump_patterns("AGAGAGAGAGA", 3, 9, 3)
-# print find_clump_patterns("AGAG", 2, 4, 2)
+#OKKKK
+# print find_clump_patterns("GCTGGCTGGCTGGCTGG", 9, 17, 3)
+print find_clump_patterns("AGAGAGAGAGA", 3, 9, 4)
+# print find_clump_patterns("AGAGA", 3, 4, 2)
 # print find_clump_patterns("AGAG", 1, 4, 2)
 # print find_clump_patterns("AGAG", 2, 3, 2)
 # print find_clump_patterns("BAG", 3, 3, 1)
+# print os.chdir("data")
 # print len(find_clump_patterns(open("data/test_clump.txt").read(), 12, 595, 19))
 # print ' '.join(find_clump_patterns(open("data/test_clump.txt").read(), 12, 595, 19))
 # AGAGTGATTGCG GTGGATAGCCTA GTGATCCACCGA GATAGTTGGTCT ACTTCCAAACAG TACTCCTGAAGT TTGCAAACTGAC CCGCACGAAGTA ATAACGATTTCC
+# print ' '.join(find_clump_patterns("CGGACTCGACAGATGTGAAGAACGACAATGTGAAGACTCGACACGACAGAGTGAAGAGAAGAGGAAACATTGTAA", 5, 50, 4))
 
-# print ' '.join(find_clump_patterns(open("data/test_clump2.txt").read(), 11, 566, 18))
-# AAACCAGGTGG
-# print ' '.join(find_clump_patterns(open("data/test_clump3.txt").read(), 9, 594, 18))
-
-# print find_clump_patterns("CGGACTCGACAGATGTGAAGAACGACAATGTGAAGACTCGACACGACAGAGTGAAGAGAAGAGGAAACATTGTAA", 5, 50, 4)
 # print len(find_clump_patterns(open("data/E-coli.txt").read(), 9, 500, 3))
 # print len(find_clump_patterns(open("data/E-coli.txt").read(), 10, 200, 4))
-# print ' '.join(find_clump_patterns(open("data/E-coli.txt").read(), 10, 200, 4))
+# print ' '.join(new_find_clump_patterns(open("data/E-coli.txt").read(), 10, 200, 4))
 # print len(find_clump_patterns(open("data/E-coli.txt").read(), 9, 500, 4))
 # print len(find_clump_patterns(open("data/E-coli.txt").read(), 9, 500, 5))
 # print len(find_clump_patterns(open("data/E-coli.txt").read(), 9, 500, 6))
 # For t=4 I get 588;for t=5 I get 288;t=6 I get 34;
-# print len(open("data/E-coli.txt").read()) / 500
 
 # other = "AATGATGAAA TGGGTCAAAA GGGTCAAAAG ATGATGAAAT AGCCGCAACA CGCAACAACC CCGCAACAAC GGTCAAAAGT GAGTTAAATA TTAAATAATC TGAAATGATG GCAGCCGCAA ACTATGGCAC GTTAAATAAT AAAGTTGCCG TTATCCCCGC CCGCTGGCGC AAGAAAGCGG GACGGTGCTA CGGGGAACTC ATCCCCGCTG GCGCGGGGAA CACTATGGCA ATCAGCAGCC CCCGCTGGCG GGCGCGGGGA TATGGCACTA TGGCGCGGGG GCGGGGAACT GTCAAAAGTT AGTTAAATAA CGGTTTATCC GAAATGATGA GGCACTATGG TCAAAAGTTG GTGGGTCAAA CAGCCGCAAC TATCCCCGCT CGGGGAACAC CTATGGCACT TATCAGCAGC TGGCACTATG GGTGGGTCAA GATGAAATGA TGATGAAATG TTTATCCCCG AGGAGTTAAA GGAGTTAAAT CAGCAGCCGC GCTGGCGCGG AAATGATGAA GCCGCAACAA ATGAAATGAT AGCAGCCGCA AAAAGTTGCC CGCTGGCGCG GGACGGTGCT GCACTATGGC CTGGCGCGGG GTTTATCCCC CAGGAGTTAA GCGGGGAACA ATGGCACTAT CCCCGCTGGC CGCGGGGAAC CAAAAGTTGC TCCCCGCTGG GGTTTATCCC".split(' ')
 # mine =  "CGCAACAACC GGTTTATCCC GACGGTGCTA ATGATGAAAT TTTATCCCCG GCGGGGAACT GATGAAATGA TCAAAAGTTG CGGGGAACTC AGCAGCCGCA GGTGGGTCAA AAATGATGAA TGATGAAATG CAGCCGCAAC ATCCCCGCTG CGCGGGGAAC GGCGCGGGGA GCTGGCGCGG CAGCAGCCGC AAAAGTTGCC TTATCCCCGC CGGTTTATCC CCCGCTGGCG GCACTATGGC ATCAGCAGCC CACTATGGCA GCGGGGAACA CTGGCGCGGG AGCCGCAACA GTTTATCCCC AATGATGAAA ATGAAATGAT CCGCAACAAC TGGCACTATG TATGGCACTA CCCCGCTGGC CTATGGCACT GCAGCCGCAA ACTATGGCAC CAAAAGTTGC GGGTCAAAAG CGCTGGCGCG GGCACTATGG GAAATGATGA CCGCTGGCGC GCCGCAACAA CGGGGAACAC GCGCGGGGAA TGGCGCGGGG TCCCCGCTGG TGGGTCAAAA GTGGGTCAAA GGACGGTGCT GTCAAAAGTT GGTCAAAAGT AAAGTTGCCG TATCAGCAGC ATGGCACTAT TATCCCCGCT TGAAATGATG AAGAAAGCGG".split(' ')
