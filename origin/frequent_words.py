@@ -1,15 +1,16 @@
-__author__ = 'natalia'
-import os
-from os import path
-import collections
 # coding=utf-8
+from tools import OrderedSet
+import collections
+
+__author__ = 'natalia'
+
 
 complement = {'A':'T', 'T':'A', 'C':'G', 'G':'C'}
 
 
 def pattern_count(text, pattern):
     count = 0
-    for i in range(len(text)-(len(pattern)-1)):
+    for i in range(len(text) - (len(pattern) - 1)):
         if text[i:i + len(pattern)] == pattern:
             count += 1
     return count
@@ -77,11 +78,30 @@ def minimum_skew(genome):
         # skew.append(update)
         if prev < minimum:
             minimum = prev
-            min_loc = [i+1]
+            min_loc = [i + 1]
         elif prev == minimum:
-            min_loc.append(i+1)
+            min_loc.append(i + 1)
         i += 1
     return min_loc
+
+def maximum_skew(genome):
+    prev = 0
+    maximum = 0
+    max_loc = []
+    i = 0
+    while i < len(genome):
+        current = genome[i]
+        if current == 'G':
+            prev += 1
+        if current == 'C':
+            prev -= 1
+        if prev > maximum:
+            maximum = prev
+            max_loc = [i + 1]
+        elif prev == maximum:
+            max_loc.append(i + 1)
+        i += 1
+    return max_loc
 
 
 def hamming(a, b):
@@ -181,86 +201,12 @@ def frequency_array(seq, size):
         fa[seq[i:i + size]] += 1
     return fa.values()
 
-#working for all except large and forum
-def old_working_find_clump_patterns(genome, k, l, t):
-    #frequency = word:((laststartindex, lastendindex), count in this window)
-    frequency = {}
-    clump_patterns = set()
-    i = k
-    while i <= len(genome): # vai ate o 'len', pois o i sera usado para intervalo exclusivo
-        si = i-k #start index
-        word = genome[si:i]
-        count = 1
-        try:
-            f = frequency[word]
-        except KeyError:
-            frequency[word] = ((si, i), count)
-        else:
-            # if the word's last start index is inside my current window, increment counter
-            #(endindex is exclusive)
-            if f[0][0] >= i - l: #in window
-                count = f[1] + 1
-                frequency[word] = ((f[0][0], i), count)
-            else: #not in window, restart counting
-                frequency[word] = ((si, i), count)
-        if count == t: #if counter in this window reaches minimun, it's a winner
-            clump_patterns.add(word)
-        i += 1
-    return clump_patterns
 
-def old_not_working_find_clump_patterns(genome, k, l, t):
-    # if my LAST si is not in window, I MUST start counting again (and reset indexes)
-    # if my first starting index is not in window, pop first si, dont increment count
-
-    #frequency = word:(starting indexes, count in this window, starting indexes index, last si)
-    frequency = {}
-    clump_patterns = set()
-    i = k
-    # vai ate o 'len', pois o i sera usado para intervalo exclusivo
-    while i <= len(genome):
-        #start index
-        si = i - k
-        word = genome[si:i]
-        count = 1
-        try:
-            f = frequency[word]
-        except KeyError:
-            frequency[word] = [[si], count, 0, si]
-        else:
-            # update start indexes
-            start_indexes = f[0]
-            start_indexes.append(si)
-
-            count = f[1]
-            #f[2] = start index index, uses index as parameter instead of 'pop'ing firsts, for performance
-            f_start = start_indexes[f[2]]
-            #if last start index not in window, restart counting
-            if f[3] <= i - l:
-                count = 1
-                frequency[word] = [[si], count, 0, si]
-            else:
-                # if the word's first start index is inside my current window, increment count ((endindex is exclusive))
-                if f_start >= i - l:
-                    #in window
-                    count += 1
-                    frequency[word][1] = count
-                else:
-                    #not in window, do not alter counting, update first start index (first start index moves to next)
-                    frequency[word][2] += 1
-        if count == t:
-            #if counter in this window reaches minimun, it's a winner
-            clump_patterns.add(word)
-        i += 1
-    return clump_patterns
-
-def find_clump_patterns(genome, k, l, t):
-    # pkmers = arrange_repeated(pool, k)
-    # fa = {p:[] for p in pkmers}
-
+def clump_finding(genome, k, l, t):
+    # fa = {word:[starting indexes]}
     fa = {}
     clump_patterns = set()
     i = k
-    # for i in range(len(genome) - (k - 1)):
     while i <= len(genome):
         si = i - k
         word = genome[si:i]
@@ -268,33 +214,71 @@ def find_clump_patterns(genome, k, l, t):
             fa[word].append(si)
         except KeyError:
             fa[word] = [si]
-        else:
-            fq = fa[word]
-            if len(fq) >= t:
-                last_fq_ix = len(fq) - 1
-                #TODO melhorar essa verificacao, quando ainda nao atingiu a janela t se torna negativo
-                todo = fq[last_fq_ix - t]
-                primeiro_t_ix = todo if todo >= 0 else 0
-                if i - primeiro_t_ix <= l:
-                    clump_patterns.add(word)
+        fq = fa[word]
+        if len(fq) >= t:
+            #start index of the first match in the last t matches
+            th_match = fq[len(fq) - t]
+            if i - th_match <= l:
+                clump_patterns.add(word)
         i += 1
     return clump_patterns
 
-# print len(arrange_repeated("ACGT", 9))
+def clump_finding_not_overlapping(genome, k, l, t):
+    # fa = {word:[starting indexes]}
+    fa = {}
+    clump_patterns = set()
+    i = k
+    while i <= len(genome):
+        si = i - k
+        word = genome[si:i]
+        try:
+            fa[word].append(si)
+        except KeyError:
+            fa[word] = [si]
+        fq = fa[word]
+        len_fq = len(fq)
+        if len_fq >= t:
+            j = len_fq - 1
+            lsi = fq[j]
+            matches = 1
+            while j > 0:
+                if fq[j - 1] < i - l:
+                    break
+                if lsi - fq[j - 1] >= k:
+                    matches += 1
+                    lsi = fq[j - 1]
+                j -= 1
+            if matches >= t:
+                clump_patterns.add(word)
+                #start index of the first match in the last t matches
+                # th_match = fq[len_fq - t]
+                # if i - th_match <= l:
+                #     overlapping = False
+                #     for ix in range(t + 1)[1:]:
+                #         if fq[-ix] - fq[-ix - 1] > k:
+                #             overlapping = True
+                #     if not overlapping:
+                #         clump_patterns.add(word)
+        i += 1
+    return clump_patterns
 
-# print find_clump_patterns("GCTGGCTGGCTGGCTGG", 9, 17, 3)
-# print find_clump_patterns("AGAGAGAGAGA", 3, 9, 4)
-# print find_clump_patterns("AGAGA", 3, 4, 2)
-# print find_clump_patterns("AGAG", 1, 4, 2)
-print find_clump_patterns("AGAG", 2, 3, 2)
-# print find_clump_patterns("TAG", 3, 3, 1)
-# print os.chdir("data")
-# print len(find_clump_patterns(open("data/test_clump.txt").read(), 12, 595, 19))
-# print ' '.join(find_clump_patterns(open("data/test_clump.txt").read(), 12, 595, 19))
-# AGAGTGATTGCG GTGGATAGCCTA GTGATCCACCGA GATAGTTGGTCT ACTTCCAAACAG TACTCCTGAAGT TTGCAAACTGAC CCGCACGAAGTA ATAACGATTTCC
-# print ' '.join(find_clump_patterns("CGGACTCGACAGATGTGAAGAACGACAATGTGAAGACTCGACACGACAGAGTGAAGAGAAGAGGAAACATTGTAA", 5, 50, 4))
 
-# print len(find_clump_patterns(open("data/E-coli.txt").read(), 9, 500, 3))
+def smart_neighbourhood_count(seq, max_hamming):
+    size = len(seq)
+    return pow(size, size) - pow(max_hamming, size)
+
+def neighbourhood_count(seq, max_hamming):
+    count = 0
+    for i in arrange_repeated(pool, len(seq)):
+        if hamming(i, seq) <= max_hamming:
+            count += 1
+    return count
+
+print neighbourhood_count("ATTA", 3)
+print smart_neighbourhood_count("ATTA", 3)
+# print len(clump_finding_not_overlapping(open("data/E-coli.txt").read(), 9, 500, 3))
+#1472
+# clump_finding_not_overlapping(open("data/E-coli.txt").read(), 9, 500, 3)
 # print len(find_clump_patterns(open("data/E-coli.txt").read(), 10, 200, 4))
 # print ' '.join(new_find_clump_patterns(open("data/E-coli.txt").read(), 10, 200, 4))
 # print len(find_clump_patterns(open("data/E-coli.txt").read(), 9, 500, 4))
