@@ -107,7 +107,7 @@ def maximum_skew(genome):
     return max_loc
 
 
-def hamming(a, b):
+def hamming_d(a, b):
     i = 0
     count = 0
     while i < len(a):
@@ -121,7 +121,7 @@ def pattern_starts_aprox(pattern, text, d):
     starts = []
     for i in range(len(text) - (len(pattern) - 1)):
         word = text[i:i + len(pattern)]
-        if hamming(word, pattern) <= d:
+        if hamming_d(word, pattern) <= d:
             starts.append(i)
     return ' '.join(str(x) for x in starts)
 
@@ -130,12 +130,12 @@ def pattern_count_aprox(text, pattern, d):
     count = 0
     for i in range(len(text) - (len(pattern) - 1)):
         word = text[i:i + len(pattern)]
-        if hamming(word, pattern) <= d:
+        if hamming_d(word, pattern) <= d:
             count += 1
     return count
 
 
-def most_frequent_words_aprox(text, size, d):
+def old_most_frequent_words_aprox(text, size, d):
     frequency = {}
     max_count = 0
     frequents = []
@@ -145,7 +145,7 @@ def most_frequent_words_aprox(text, size, d):
             frequency[word] = 0
         matches = False
         for w in frequency.keys():
-            if hamming(w, word) <= d:
+            if hamming_d(w, word) <= d:
                 matches = True
         if matches:
             frequency[word] += 1
@@ -180,6 +180,9 @@ def arrange_repeated(letters, size):
             result.append(letters[i] + a[:i] + a[i:])
     return sorted(result)
 
+def arrange_repeated_dna(size):
+    return arrange_repeated(pool, size)
+
 pool = "ACGT"
 def pattern_to_number(pattern):
     possible = arrange_repeated(pool, len(pattern))
@@ -194,7 +197,6 @@ def number_to_pattern(i, size):
 
 
 def frequency_array(seq, size):
-    #overlapping counts!
     possible = arrange_repeated(pool, size)
     fa = collections.OrderedDict()
     for p in possible:
@@ -226,16 +228,26 @@ def clump_finding(genome, k, l, t):
     return clump_patterns
 
 
-# def smart_neighbourhood_count(seq, max_hamming):
-#     size = len(seq)
-#     return pow(size, size) - pow(max_hamming, size)
+def smart_neighbourhood_count(seq, max_hamming):
+    size = len(seq)
+    return pow(len(pool),size) - pow(len(pool), size - max_hamming)
 
 def neighbourhood_count(seq, max_hamming):
     count = 0
     for i in arrange_repeated(pool, len(seq)):
-        if hamming(i, seq) <= max_hamming:
+        if hamming_d(i, seq) <= max_hamming:
             count += 1
     return count
+
+def neighbors(pattern, max_hamming):
+    neighbours = []
+    for i in arrange_repeated(pool, len(pattern)):
+        if hamming_d(i, pattern) <= max_hamming:
+            neighbours.append(i)
+    return neighbours
+
+# print smart_neighbourhood_count("ACG", 1)
+# print neighbourhood_count("ACG", 1)
 
 def find_specific_clump():
     sixs = pattern_starts("CGCATCCGG", open("data/E-coli.txt").read())
@@ -245,3 +257,51 @@ def find_specific_clump():
         if (sixs[i + 4] - sixs[i]) <= 601:
             print [sixs[i], sixs[i + 1], sixs[i + 2], sixs[i + 3], sixs[i + 4]]
         i += 1
+
+def most_frequent_words_aprox(seq, k, d):
+    # fa = {p:0 for p in arrange_repeated_dna(size)}
+    # possible = {p:0 for p in {neighbourhood(word, d) for word in (seq[i:i+size] for i in range(len(seq) - (size - 1)))}}
+    most = ()
+    n_hood = []
+    for i in range(len(seq) - (k - 1)):
+        n_hood += neighbors(seq[i:i + k], d)
+    n_hood = sorted(n_hood)
+    max_count = 0
+    count = 1
+    for i in range(len(n_hood) - 1):
+        word = n_hood[i]
+        if word == n_hood[i + 1]:
+            count += 1
+            if count > max_count:
+                max_count = count
+                most = [word]
+            elif count == max_count:
+                most.append(word)
+        else:
+            count = 1
+
+def pseudo_frequent_with_mismatches(text, k, d):
+    fq_patterns = set()
+    n_hoods = []
+    for i in range(len(text) - k):
+        n_hoods += neighbors(text[i:i + k], d)
+    indexes = {}
+    count = {}
+    for i in range(len(n_hoods)-1):
+        pattern = n_hoods[i]
+        indexes[i] = pattern_to_number(pattern)
+        count[i] = 1
+    indexes = sorted(indexes)
+
+    for i in range(len(n_hoods)-2):
+        if indexes[i] == indexes[i + 1]:
+            count[i + 1] = count[i] + 1
+    max_count = max(count)
+    for i in range(len(n_hoods)):
+        if count[i] == max_count:
+            fq_patterns.add(number_to_pattern(indexes[i], k))
+    return fq_patterns
+
+# print most_frequent_words_aprox("ACGTTGCATGTCGCATGATGCATGAGAGCT", 4, 1)
+
+# print most_frequent_words_aprox("CACAGTAGGCGCCGGCACACACAGCCCCGGGCCCCGGGCCGCCCCGGGCCGGCGGCCGCCGGCGCCGGCACACCGGCACAGCCGTACCGGCACAGTAGTACCGGCCGGCCGGCACACCGGCACACCGGGTACACACCGGGGCGCACACACAGGCGGGCGCCGGGCCCCGGGCCGTACCGGGCCGCCGGCGGCCCACAGGCGCCGGCACAGTACCGGCACACACAGTAGCCCACACACAGGCGGGCGGTAGCCGGCGCACACACACACAGTAGGCGCACAGCCGCCCACACACACCGGCCGGCCGGCACAGGCGGGCGGGCGCACACACACCGGCACAGTAGTAGGCGGCCGGCGCACAGCC", 10, 2)
