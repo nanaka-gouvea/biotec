@@ -2,7 +2,6 @@ from unittest.case import TestCase
 
 from origin import frequent_words
 
-
 __author__ = 'natalia'
 
 
@@ -37,5 +36,6 @@ class FrequentWordsTest(TestCase):
         self.assertEqual(clumps, set(['AGAGTGATTGCG', 'GTGGATAGCCTA', 'GTGATCCACCGA', 'GATAGTTGGTCT', 'ACTTCCAAACAG',
                                       'TACTCCTGAAGT', 'TTGCAAACTGAC', 'CCGCACGAAGTA', 'ATAACGATTTCC']))
 
-    def test_clump_medium_not_over(self):
-        clumps = frequent_words.clump_finding(open("../data/test_clump.txt").read(), 12, 595, 19)
+    def test_ecoli(self):
+        clumps = frequent_words.clump_finding(open("../data/E-coli.txt").read(), 9, 500, 3)
+        assert len(clumps) == 1904

@@ -1,6 +1,7 @@
 # coding=utf-8
 from tools import OrderedSet
 import collections
+import cProfile
 
 __author__ = 'natalia'
 
@@ -44,10 +45,12 @@ def reverse_complement(strand):
 
 def pattern_starts(pattern, text):
     starts = []
-    for i in range(len(text)-(len(pattern)-1)):
-        if text[i:i + len(pattern)] == pattern:
+    k = len(pattern)
+    # end index is exclusive
+    for i in range(len(text) - k + 1):
+        if text[i:i + k] == pattern:
             starts.append(i)
-    return ' '.join(str(x) for x in starts)
+    return starts
 
 def skew_g_c(genome):
     skew = [0]
@@ -116,7 +119,7 @@ def hamming(a, b):
 
 def pattern_starts_aprox(pattern, text, d):
     starts = []
-    for i in range(len(text)-(len(pattern)-1)):
+    for i in range(len(text) - (len(pattern) - 1)):
         word = text[i:i + len(pattern)]
         if hamming(word, pattern) <= d:
             starts.append(i)
@@ -183,13 +186,12 @@ def pattern_to_number(pattern):
     for i in range(len(possible)):
         if possible[i] == pattern:
             return i
-# print pattern_to_number("ATGCAA")
+
 
 def number_to_pattern(i, size):
     possible = arrange_repeated(pool, size)
     return possible[i]
 
-# print number_to_pattern(5437, 8)
 
 def frequency_array(seq, size):
     #overlapping counts!
@@ -203,69 +205,30 @@ def frequency_array(seq, size):
 
 
 def clump_finding(genome, k, l, t):
-    # fa = {word:[starting indexes]}
-    fa = {}
+    start_indexes = {}
     clump_patterns = set()
     i = k
     while i <= len(genome):
-        si = i - k
-        word = genome[si:i]
+        current_start_ix = i - k
+        word = genome[current_start_ix:i]
         try:
-            fa[word].append(si)
+            start_indexes[word].append(current_start_ix)
         except KeyError:
-            fa[word] = [si]
-        fq = fa[word]
-        if len(fq) >= t:
+            start_indexes[word] = [current_start_ix]
+        word_starting_indexes = start_indexes[word]
+        len_ixs = len(word_starting_indexes)
+        if len_ixs >= t:
             #start index of the first match in the last t matches
-            th_match = fq[len(fq) - t]
-            if i - th_match <= l:
+            last_tth_start_ix = word_starting_indexes[len_ixs - t]
+            if i - last_tth_start_ix <= l:
                 clump_patterns.add(word)
         i += 1
     return clump_patterns
 
-def clump_finding_not_overlapping(genome, k, l, t):
-    # fa = {word:[starting indexes]}
-    fa = {}
-    clump_patterns = set()
-    i = k
-    while i <= len(genome):
-        si = i - k
-        word = genome[si:i]
-        try:
-            fa[word].append(si)
-        except KeyError:
-            fa[word] = [si]
-        fq = fa[word]
-        len_fq = len(fq)
-        if len_fq >= t:
-            j = len_fq - 1
-            lsi = fq[j]
-            matches = 1
-            while j > 0:
-                if fq[j - 1] < i - l:
-                    break
-                if lsi - fq[j - 1] >= k:
-                    matches += 1
-                    lsi = fq[j - 1]
-                j -= 1
-            if matches >= t:
-                clump_patterns.add(word)
-                #start index of the first match in the last t matches
-                # th_match = fq[len_fq - t]
-                # if i - th_match <= l:
-                #     overlapping = False
-                #     for ix in range(t + 1)[1:]:
-                #         if fq[-ix] - fq[-ix - 1] > k:
-                #             overlapping = True
-                #     if not overlapping:
-                #         clump_patterns.add(word)
-        i += 1
-    return clump_patterns
 
-
-def smart_neighbourhood_count(seq, max_hamming):
-    size = len(seq)
-    return pow(size, size) - pow(max_hamming, size)
+# def smart_neighbourhood_count(seq, max_hamming):
+#     size = len(seq)
+#     return pow(size, size) - pow(max_hamming, size)
 
 def neighbourhood_count(seq, max_hamming):
     count = 0
@@ -274,39 +237,11 @@ def neighbourhood_count(seq, max_hamming):
             count += 1
     return count
 
-print neighbourhood_count("ATTA", 3)
-print smart_neighbourhood_count("ATTA", 3)
-# print len(clump_finding_not_overlapping(open("data/E-coli.txt").read(), 9, 500, 3))
-#1472
-# clump_finding_not_overlapping(open("data/E-coli.txt").read(), 9, 500, 3)
-# print len(find_clump_patterns(open("data/E-coli.txt").read(), 10, 200, 4))
-# print ' '.join(new_find_clump_patterns(open("data/E-coli.txt").read(), 10, 200, 4))
-# print len(find_clump_patterns(open("data/E-coli.txt").read(), 9, 500, 4))
-# print len(find_clump_patterns(open("data/E-coli.txt").read(), 9, 500, 5))
-# print len(find_clump_patterns(open("data/E-coli.txt").read(), 9, 500, 6))
-# For t=4 I get 588;for t=5 I get 288;t=6 I get 34;
-
-# other = "AATGATGAAA TGGGTCAAAA GGGTCAAAAG ATGATGAAAT AGCCGCAACA CGCAACAACC CCGCAACAAC GGTCAAAAGT GAGTTAAATA TTAAATAATC TGAAATGATG GCAGCCGCAA ACTATGGCAC GTTAAATAAT AAAGTTGCCG TTATCCCCGC CCGCTGGCGC AAGAAAGCGG GACGGTGCTA CGGGGAACTC ATCCCCGCTG GCGCGGGGAA CACTATGGCA ATCAGCAGCC CCCGCTGGCG GGCGCGGGGA TATGGCACTA TGGCGCGGGG GCGGGGAACT GTCAAAAGTT AGTTAAATAA CGGTTTATCC GAAATGATGA GGCACTATGG TCAAAAGTTG GTGGGTCAAA CAGCCGCAAC TATCCCCGCT CGGGGAACAC CTATGGCACT TATCAGCAGC TGGCACTATG GGTGGGTCAA GATGAAATGA TGATGAAATG TTTATCCCCG AGGAGTTAAA GGAGTTAAAT CAGCAGCCGC GCTGGCGCGG AAATGATGAA GCCGCAACAA ATGAAATGAT AGCAGCCGCA AAAAGTTGCC CGCTGGCGCG GGACGGTGCT GCACTATGGC CTGGCGCGGG GTTTATCCCC CAGGAGTTAA GCGGGGAACA ATGGCACTAT CCCCGCTGGC CGCGGGGAAC CAAAAGTTGC TCCCCGCTGG GGTTTATCCC".split(' ')
-# mine =  "CGCAACAACC GGTTTATCCC GACGGTGCTA ATGATGAAAT TTTATCCCCG GCGGGGAACT GATGAAATGA TCAAAAGTTG CGGGGAACTC AGCAGCCGCA GGTGGGTCAA AAATGATGAA TGATGAAATG CAGCCGCAAC ATCCCCGCTG CGCGGGGAAC GGCGCGGGGA GCTGGCGCGG CAGCAGCCGC AAAAGTTGCC TTATCCCCGC CGGTTTATCC CCCGCTGGCG GCACTATGGC ATCAGCAGCC CACTATGGCA GCGGGGAACA CTGGCGCGGG AGCCGCAACA GTTTATCCCC AATGATGAAA ATGAAATGAT CCGCAACAAC TGGCACTATG TATGGCACTA CCCCGCTGGC CTATGGCACT GCAGCCGCAA ACTATGGCAC CAAAAGTTGC GGGTCAAAAG CGCTGGCGCG GGCACTATGG GAAATGATGA CCGCTGGCGC GCCGCAACAA CGGGGAACAC GCGCGGGGAA TGGCGCGGGG TCCCCGCTGG TGGGTCAAAA GTGGGTCAAA GGACGGTGCT GTCAAAAGTT GGTCAAAAGT AAAGTTGCCG TATCAGCAGC ATGGCACTAT TATCCCCGCT TGAAATGATG AAGAAAGCGG".split(' ')
-# print ' '.join(set(mine).difference(other))
-# print ' '.join(set(mine).intersection(other))
-# common = set(set(mine).intersection(other))
-#
-# for x in other:
-#     if x not in mine:
-#         print x
-
-#didnt find these clumps:
-# GAGTTAAATA
-# TTAAATAATC
-# GTTAAATAAT
-# AGTTAAATAA
-# AGGAGTTAAA
-# GGAGTTAAAT
-# CAGGAGTTAA
-
-
-#OK! all clumps i found really are clumps!
-# for x in mine:
-#     if x not in other:
-#         print x
+def find_specific_clump():
+    sixs = pattern_starts("CGCATCCGG", open("data/E-coli.txt").read())
+    print sixs
+    i = 4
+    while i < (len(sixs) - 4):
+        if (sixs[i + 4] - sixs[i]) <= 601:
+            print [sixs[i], sixs[i + 1], sixs[i + 2], sixs[i + 3], sixs[i + 4]]
+        i += 1
