@@ -199,6 +199,23 @@ def better_neighbors(letters, size, pattern, d):
                 result.append(nei)
     return result
 
+def better_neighbors_reverse(letters, size, pattern, d):
+    if size == 0:
+        return []
+    result = []
+    if size == 1:
+        for l in letters:
+            result.append(l)
+        return result
+    for a in better_neighbors(letters, size - 1, pattern, d):
+        for i in range(len(letters)):
+            nei = letters[i] + a[:i] + a[i:]
+            #TODO melhorar para quando nao tem mesmo len
+            if len(pattern) != len(nei) or hamming_d(pattern, nei) <= d:
+                result.append(nei)
+                result.append(reverse_complement(nei))
+    return result
+
 pool = "ACGT"
 def pattern_to_number(pattern):
     possible = arrange_repeated(pool, len(pattern))
@@ -300,12 +317,14 @@ def most_frequent_words_aprox(seq, k, d):
             count = 1
     return most
 
-def most_frequent_words_aprox_mis(seq, k, d):
+def most_frequent_words_aprox_reverse(seq, k, d):
     most = ()
     n_hood = []
 
     for i in range(len(seq) - (k - 1)):
-        n_hood.extend(better_neighbors(pool, k, seq[i:i + k], d))
+        pattern = seq[i:i + k]
+        n_hood.extend(better_neighbors_reverse(pool, k, pattern, d))
+        # n_hood.extend(better_neighbors(pool, k, reverse_complement(pattern), d))
 
     n_hood = sorted(n_hood)
     max_count = 0
@@ -324,8 +343,10 @@ def most_frequent_words_aprox_mis(seq, k, d):
     return most
 
 
-# print most_frequent_words_aprox("ACGTTGCATGTCGCATGATGCATGAGAGCT", 4, 1)
-# print most_frequent_words_aprox("ACGTTGCATGTCGCATGATGCATGAGAGCT", 10, 1)
+# print most_frequent_words_aprox_reverse("ACGTTGCATGTCGCATGATGCATGAGAGCT", 4, 1)
+# print most_frequent_words_aprox_reverse("CTTGCCGGCGCCGATTATACGATCGCGGCCGCTTGCCTTCTTTATAATGCATCGGCGCCGCGATCTTGCTATATACGTACGCTTCGCTTGCATCTTGCGCGCATTACGTACTTATCGATTACTTATCTTCGATGCCGGCCGGCATATGCCGCTTTAGCATCGATCGATCGTACTTTACGCGTATAGCCGCTTCGCTTGCCGTACGCGATGCTAGCATATGCTAGCGCTAATTACTTAT", 9, 3)
+# AGCGCCGCT AGCGGCGCT
+print most_frequent_words_aprox_reverse("TTCTGATTTCATATTGATTTCGAGTGTATTCGAGGAGATATGAGTAATTGTGTGTATATATAGAGTTCTATTCATATTTCATTTCTAATGAGTATGGAGTGTTCTATATTCTGTGATATGAGGAGATTTCTGATGAGTAATTTCTATTCTGTATTCGAGTGGAGTGTTCATTTCGAGATTGATGAGATGAGTTCTATATATAGAGGAGATTGGAGGAGATTTCTGTAGAGTTCTTCTGTGGAGTA", 9, 2)
 # print better_neighbors(pool, 10, "CACAGTAGGC", 2)
 
 
