@@ -178,10 +178,26 @@ def arrange_repeated(letters, size):
     for a in arrange_repeated(letters, size - 1):
         for i in range(len(letters)):
             result.append(letters[i] + a[:i] + a[i:])
-    return sorted(result)
+    return result
 
 def arrange_repeated_dna(size):
     return arrange_repeated(pool, size)
+
+def better_neighbors(letters, size, pattern, d):
+    if size == 0:
+        return []
+    result = []
+    if size == 1:
+        for l in letters:
+            result.append(l)
+        return result
+    for a in better_neighbors(letters, size - 1, pattern, d):
+        for i in range(len(letters)):
+            nei = letters[i] + a[:i] + a[i:]
+            #TODO melhorar para quando nao tem mesmo len
+            if len(pattern) != len(nei) or hamming_d(pattern, nei) <= d:
+                result.append(nei)
+    return result
 
 pool = "ACGT"
 def pattern_to_number(pattern):
@@ -239,9 +255,11 @@ def neighbourhood_count(seq, max_hamming):
             count += 1
     return count
 
-def neighbors(pattern, max_hamming):
+def neighbors(pattern, max_hamming, possible=None):
     neighbours = []
-    for i in arrange_repeated(pool, len(pattern)):
+    if possible is None:
+        possible = arrange_repeated(pool, len(pattern))
+    for i in possible:
         if hamming_d(i, pattern) <= max_hamming:
             neighbours.append(i)
     return neighbours
@@ -259,12 +277,13 @@ def find_specific_clump():
         i += 1
 
 def most_frequent_words_aprox(seq, k, d):
-    # fa = {p:0 for p in arrange_repeated_dna(size)}
-    # possible = {p:0 for p in {neighbourhood(word, d) for word in (seq[i:i+size] for i in range(len(seq) - (size - 1)))}}
     most = ()
     n_hood = []
+    # possible = arrange_repeated(pool, k)
+
     for i in range(len(seq) - (k - 1)):
-        n_hood += neighbors(seq[i:i + k], d)
+        n_hood.extend(better_neighbors(pool, k, seq[i:i + k], d))
+
     n_hood = sorted(n_hood)
     max_count = 0
     count = 1
@@ -279,6 +298,36 @@ def most_frequent_words_aprox(seq, k, d):
                 most.append(word)
         else:
             count = 1
+    return most
+
+def most_frequent_words_aprox_mis(seq, k, d):
+    most = ()
+    n_hood = []
+
+    for i in range(len(seq) - (k - 1)):
+        n_hood.extend(better_neighbors(pool, k, seq[i:i + k], d))
+
+    n_hood = sorted(n_hood)
+    max_count = 0
+    count = 1
+    for i in range(len(n_hood) - 1):
+        word = n_hood[i]
+        if word == n_hood[i + 1]:
+            count += 1
+            if count > max_count:
+                max_count = count
+                most = [word]
+            elif count == max_count:
+                most.append(word)
+        else:
+            count = 1
+    return most
+
+
+# print most_frequent_words_aprox("ACGTTGCATGTCGCATGATGCATGAGAGCT", 4, 1)
+# print most_frequent_words_aprox("ACGTTGCATGTCGCATGATGCATGAGAGCT", 10, 1)
+# print better_neighbors(pool, 10, "CACAGTAGGC", 2)
+
 
 def pseudo_frequent_with_mismatches(text, k, d):
     fq_patterns = set()
@@ -301,7 +350,3 @@ def pseudo_frequent_with_mismatches(text, k, d):
         if count[i] == max_count:
             fq_patterns.add(number_to_pattern(indexes[i], k))
     return fq_patterns
-
-# print most_frequent_words_aprox("ACGTTGCATGTCGCATGATGCATGAGAGCT", 4, 1)
-
-# print most_frequent_words_aprox("CACAGTAGGCGCCGGCACACACAGCCCCGGGCCCCGGGCCGCCCCGGGCCGGCGGCCGCCGGCGCCGGCACACCGGCACAGCCGTACCGGCACAGTAGTACCGGCCGGCCGGCACACCGGCACACCGGGTACACACCGGGGCGCACACACAGGCGGGCGCCGGGCCCCGGGCCGTACCGGGCCGCCGGCGGCCCACAGGCGCCGGCACAGTACCGGCACACACAGTAGCCCACACACAGGCGGGCGGTAGCCGGCGCACACACACACAGTAGGCGCACAGCCGCCCACACACACCGGCCGGCCGGCACAGGCGGGCGGGCGCACACACACCGGCACAGTAGTAGGCGGCCGGCGCACAGCC", 10, 2)
