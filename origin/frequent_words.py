@@ -5,7 +5,6 @@ import cProfile
 
 __author__ = 'natalia'
 
-
 complement = {'A':'T', 'T':'A', 'C':'G', 'G':'C'}
 
 
@@ -194,7 +193,6 @@ def better_neighbors(letters, size, pattern, d):
     for a in better_neighbors(letters, size - 1, pattern, d):
         for i in range(len(letters)):
             nei = letters[i] + a[:i] + a[i:]
-            #TODO melhorar para quando nao tem mesmo len
             if len(pattern) != len(nei) or hamming_d(pattern, nei) <= d:
                 result.append(nei)
     return result
@@ -210,7 +208,6 @@ def better_neighbors_reverse(letters, size, pattern, d):
     for a in better_neighbors(letters, size - 1, pattern, d):
         for i in range(len(letters)):
             nei = letters[i] + a[:i] + a[i:]
-            #TODO melhorar para quando nao tem mesmo len
             if len(pattern) != len(nei) or hamming_d(pattern, nei) <= d:
                 result.append(nei)
                 result.append(reverse_complement(nei))
@@ -324,7 +321,6 @@ def most_frequent_words_aprox_reverse(seq, k, d):
     for i in range(len(seq) - (k - 1)):
         pattern = seq[i:i + k]
         n_hood.extend(better_neighbors_reverse(pool, k, pattern, d))
-        # n_hood.extend(better_neighbors(pool, k, reverse_complement(pattern), d))
 
     n_hood = sorted(n_hood)
     max_count = 0
@@ -341,33 +337,3 @@ def most_frequent_words_aprox_reverse(seq, k, d):
         else:
             count = 1
     return most
-
-
-# print most_frequent_words_aprox_reverse("ACGTTGCATGTCGCATGATGCATGAGAGCT", 4, 1)
-# print most_frequent_words_aprox_reverse("CTTGCCGGCGCCGATTATACGATCGCGGCCGCTTGCCTTCTTTATAATGCATCGGCGCCGCGATCTTGCTATATACGTACGCTTCGCTTGCATCTTGCGCGCATTACGTACTTATCGATTACTTATCTTCGATGCCGGCCGGCATATGCCGCTTTAGCATCGATCGATCGTACTTTACGCGTATAGCCGCTTCGCTTGCCGTACGCGATGCTAGCATATGCTAGCGCTAATTACTTAT", 9, 3)
-# AGCGCCGCT AGCGGCGCT
-print most_frequent_words_aprox_reverse("TTCTGATTTCATATTGATTTCGAGTGTATTCGAGGAGATATGAGTAATTGTGTGTATATATAGAGTTCTATTCATATTTCATTTCTAATGAGTATGGAGTGTTCTATATTCTGTGATATGAGGAGATTTCTGATGAGTAATTTCTATTCTGTATTCGAGTGGAGTGTTCATTTCGAGATTGATGAGATGAGTTCTATATATAGAGGAGATTGGAGGAGATTTCTGTAGAGTTCTTCTGTGGAGTA", 9, 2)
-# print better_neighbors(pool, 10, "CACAGTAGGC", 2)
-
-
-def pseudo_frequent_with_mismatches(text, k, d):
-    fq_patterns = set()
-    n_hoods = []
-    for i in range(len(text) - k):
-        n_hoods += neighbors(text[i:i + k], d)
-    indexes = {}
-    count = {}
-    for i in range(len(n_hoods)-1):
-        pattern = n_hoods[i]
-        indexes[i] = pattern_to_number(pattern)
-        count[i] = 1
-    indexes = sorted(indexes)
-
-    for i in range(len(n_hoods)-2):
-        if indexes[i] == indexes[i + 1]:
-            count[i + 1] = count[i] + 1
-    max_count = max(count)
-    for i in range(len(n_hoods)):
-        if count[i] == max_count:
-            fq_patterns.add(number_to_pattern(indexes[i], k))
-    return fq_patterns

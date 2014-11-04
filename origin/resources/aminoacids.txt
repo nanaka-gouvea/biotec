@@ -1,0 +1,20 @@
+K lysine
+N asparagine
+T
+R
+S
+I
+M
+Q glutamine
+H
+P proline
+L leucine
+E
+D
+A
+G
+V valine
+Y tyrosine
+C
+W tryptophan
+F phenylananine
