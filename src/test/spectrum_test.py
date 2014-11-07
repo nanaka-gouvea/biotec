@@ -1,9 +1,9 @@
 from unittest.case import TestCase
-from origin.spectrum import *
+from src.spectrum import *
 __author__ = 'natalia'
 
 
-class Spectrum_Test(TestCase):
+class SpectrumTest(TestCase):
 
     def test_theoretical_spectrum(self):
         lines = open("../data/theoretical_spectrum.txt").read().splitlines()

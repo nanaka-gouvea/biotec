@@ -1,6 +1,6 @@
 import os
 from collections import defaultdict
-from frequent_words import *
+from origin import *
 
 __author__ = 'natalia'
 

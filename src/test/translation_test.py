@@ -1,5 +1,5 @@
 from unittest.case import TestCase
-from origin import translation
+from src import translation
 __author__ = 'natalia'
 
 

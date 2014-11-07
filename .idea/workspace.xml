@@ -1,14 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="ed34ae6c-1f29-4eef-a9cc-dbffdabacabd" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/origin/data/ecoli_region.txt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/origin/data/resultEcoli1.txt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/origin/data/test_clump2.txt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/origin/data/test_clump3.txt" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/origin/data/E-coli.txt" afterPath="$PROJECT_DIR$/origin/data/E-coli.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/origin/frequent_words.py" afterPath="$PROJECT_DIR$/origin/frequent_words.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/origin/test/frequent_words_test.py" afterPath="$PROJECT_DIR$/origin/test/frequent_words_test.py" />
+    <list default="true" id="ed34ae6c-1f29-4eef-a9cc-dbffdabacabd" name="Default" comment="mismatches and reverse slow">
+      <change type="DELETED" beforePath="$PROJECT_DIR$/sequence/__init__.py" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/sequence/alignment/SubstitutionMatrix.py" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/sequence/alignment/__init__.py" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/tools/OrderedSet.py" afterPath="" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/origin/__init__.py" afterPath="$PROJECT_DIR$/src/__init__.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/origin/data/B_brevis.txt" afterPath="$PROJECT_DIR$/src/data/B_brevis.txt" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/origin/data/E-coli.txt" afterPath="$PROJECT_DIR$/src/data/E-coli.txt" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/origin/data/ecoli_small.txt" afterPath="$PROJECT_DIR$/src/data/ecoli_small.txt" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/origin/data/peptide_encoding.txt" afterPath="$PROJECT_DIR$/src/data/peptide_encoding.txt" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/origin/data/skew.txt" afterPath="$PROJECT_DIR$/src/data/skew.txt" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/origin/data/test_clump.txt" afterPath="$PROJECT_DIR$/src/data/test_clump.txt" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/origin/data/theoretical_spectrum.txt" afterPath="$PROJECT_DIR$/src/data/theoretical_spectrum.txt" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/origin/data/thermotoga.txt" afterPath="$PROJECT_DIR$/src/data/thermotoga.txt" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/origin/data/translate.txt" afterPath="$PROJECT_DIR$/src/data/translate.txt" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/origin/frequent_words.py" afterPath="$PROJECT_DIR$/src/origin.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/origin/resources/Tyrocidine_B1.txt" afterPath="$PROJECT_DIR$/src/resources/Tyrocidine_B1.txt" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/origin/resources/aminoacids.txt" afterPath="$PROJECT_DIR$/src/resources/aminoacids.txt" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/origin/resources/genetic_code.txt" afterPath="$PROJECT_DIR$/src/resources/genetic_code.txt" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/origin/resources/genetic_code_tc.txt" afterPath="$PROJECT_DIR$/src/resources/genetic_code_tc.txt" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/origin/resources/integer_mass_table.txt" afterPath="$PROJECT_DIR$/src/resources/integer_mass_table.txt" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/origin/spectrum.py" afterPath="$PROJECT_DIR$/src/spectrum.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/origin/test/__init__.py" afterPath="$PROJECT_DIR$/src/test/__init__.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/origin/test/frequent_words_test.py" afterPath="$PROJECT_DIR$/src/test/origin_test.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/origin/test/spectrum_test.py" afterPath="$PROJECT_DIR$/src/test/spectrum_test.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/origin/test/translation_test.py" afterPath="$PROJECT_DIR$/src/test/translation_test.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/origin/translation.py" afterPath="$PROJECT_DIR$/src/translation.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="biotec.iws" />
@@ -32,11 +51,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="frequent_words.py" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/origin/frequent_words.py">
+      <file leaf-file-name="spectrum_test.py" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/test/spectrum_test.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.8483816" vertical-offset="3642" max-vertical-offset="4518">
-              <caret line="232" column="42" selection-start-line="232" selection-start-column="42" selection-end-line="232" selection-end-column="42" />
+            <state vertical-scroll-proportion="0.358804" vertical-offset="0" max-vertical-offset="602">
+              <caret line="13" column="0" selection-start-line="13" selection-start-column="0" selection-end-line="13" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -63,13 +82,32 @@
         <option value="$PROJECT_DIR$/origin/data/resultEcoli1.txt" />
         <option value="$PROJECT_DIR$/origin/data/ecoli-9-600-5.txt" />
         <option value="$PROJECT_DIR$/origin/test/frequent_words_test.py" />
+        <option value="$PROJECT_DIR$/origin/data/translate.txt" />
+        <option value="$PROJECT_DIR$/origin/data/translate_2.txt" />
+        <option value="$PROJECT_DIR$/origin/resources/aminoacids.txt" />
         <option value="$PROJECT_DIR$/origin/frequent_words.py" />
+        <option value="$PROJECT_DIR$/origin/data/peptide_encoding_2.txt" />
+        <option value="$PROJECT_DIR$/origin/resources/genetic_code_tc.txt" />
+        <option value="$PROJECT_DIR$/origin/data/peptide_encoding.txt" />
+        <option value="$PROJECT_DIR$/origin/resources/Tyrocidine_B1.txt" />
+        <option value="/fragment.py" />
+        <option value="$PROJECT_DIR$/origin/resources/genetic_code.txt" />
+        <option value="$PROJECT_DIR$/origin/data/B_brevis.txt" />
+        <option value="$PROJECT_DIR$/origin/aminoacids.py" />
+        <option value="$PROJECT_DIR$/origin/translation.py" />
+        <option value="$PROJECT_DIR$/origin/test/aminoacids_test.py" />
+        <option value="$PROJECT_DIR$/origin/data/theoretical_spectrum.txt" />
+        <option value="$PROJECT_DIR$/origin/test/spectrum_test.py" />
+        <option value="$PROJECT_DIR$/origin/test/translation_test.py" />
+        <option value="$PROJECT_DIR$/origin/spectrum.py" />
+        <option value="$PROJECT_DIR$/src/test/origin_test.py" />
+        <option value="$PROJECT_DIR$/src/test/spectrum_test.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="221" />
-    <option name="y" value="129" />
+    <option name="x" value="230" />
+    <option name="y" value="122" />
     <option name="width" value="1689" />
     <option name="height" value="950" />
   </component>
@@ -175,7 +213,6 @@
       <sortByType />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -197,6 +234,7 @@
         </subPane>
       </pane>
       <pane id="PackagesPane" />
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -212,6 +250,22 @@
     <property name="options.splitter.details.proportions" value="0.2" />
     <property name="options.searchVisible" value="true" />
     <property name="dynamic.classpath" value="false" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatWidth0" value="172" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatOrder0" value="0" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatWidth1" value="192" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatOrder1" value="1" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatWidth2" value="198" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatOrder2" value="2" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatWidth3" value="1097" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatOrder3" value="3" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeWidth0" value="172" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeOrder0" value="0" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeWidth1" value="192" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeOrder1" value="1" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeWidth2" value="198" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeOrder2" value="2" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeWidth3" value="1097" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeOrder3" value="3" />
   </component>
   <component name="PyConsoleOptionsProvider">
     <option name="myPythonConsoleState">
@@ -221,15 +275,18 @@
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/origin/test" />
+      <recent name="$PROJECT_DIR$/origin/resources" />
+      <recent name="$PROJECT_DIR$/origin/data" />
       <recent name="$PROJECT_DIR$/origin/main" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src" />
       <recent name="$PROJECT_DIR$/origin" />
       <recent name="$PROJECT_DIR$/origin/main" />
     </key>
   </component>
-  <component name="RunManager" selected="Python tests.Unittests in frequent_words_test">
-    <configuration default="false" name="Unittests in FrequentWordsTest" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="Python tests.Unittests in translation_test">
+    <configuration default="false" name="Unittests in Spectrum_Test" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs />
@@ -239,8 +296,8 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="biotec" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/origin/test/frequent_words_test.py" />
-      <option name="CLASS_NAME" value="FrequentWordsTest" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/origin/test/spectrum_test.py" />
+      <option name="CLASS_NAME" value="Spectrum_Test" />
       <option name="METHOD_NAME" value="" />
       <option name="FOLDER_NAME" value="" />
       <option name="TEST_TYPE" value="TEST_CLASS" />
@@ -249,27 +306,25 @@
       <option name="PUREUNITTEST" value="true" />
       <option name="PARAMS" value="" />
       <option name="USE_PARAM" value="false" />
-      <RunnerSettings RunnerId="PyDebugRunner" />
       <RunnerSettings RunnerId="PythonRunner" />
-      <ConfigurationWrapper RunnerId="PyDebugRunner" />
       <ConfigurationWrapper RunnerId="PythonRunner" />
       <method />
     </configuration>
-    <configuration default="false" name="Unittest FrequentWordsTest.test_clump_overlap" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
+    <configuration default="false" name="Unittests in test" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs />
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/origin/test" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src/test" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="biotec" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/origin/test/frequent_words_test.py" />
-      <option name="CLASS_NAME" value="FrequentWordsTest" />
-      <option name="METHOD_NAME" value="test_clump_overlap" />
-      <option name="FOLDER_NAME" value="" />
-      <option name="TEST_TYPE" value="TEST_METHOD" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="CLASS_NAME" value="" />
+      <option name="METHOD_NAME" value="" />
+      <option name="FOLDER_NAME" value="$PROJECT_DIR$/src/test" />
+      <option name="TEST_TYPE" value="TEST_FOLDER" />
       <option name="PATTERN" value="" />
       <option name="USE_PATTERN" value="false" />
       <option name="PUREUNITTEST" value="true" />
@@ -279,21 +334,21 @@
       <ConfigurationWrapper RunnerId="PythonRunner" />
       <method />
     </configuration>
-    <configuration default="false" name="Unittest FrequentWordsTest.test_performance" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
+    <configuration default="false" name="Unittests in origin_test" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs />
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/origin/test" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src/test" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="biotec" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/origin/test/frequent_words_test.py" />
-      <option name="CLASS_NAME" value="FrequentWordsTest" />
-      <option name="METHOD_NAME" value="test_performance" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/test/origin_test.py" />
+      <option name="CLASS_NAME" value="" />
+      <option name="METHOD_NAME" value="" />
       <option name="FOLDER_NAME" value="" />
-      <option name="TEST_TYPE" value="TEST_METHOD" />
+      <option name="TEST_TYPE" value="TEST_SCRIPT" />
       <option name="PATTERN" value="" />
       <option name="USE_PATTERN" value="false" />
       <option name="PUREUNITTEST" value="true" />
@@ -303,21 +358,21 @@
       <ConfigurationWrapper RunnerId="PythonRunner" />
       <method />
     </configuration>
-    <configuration default="false" name="Unittest FrequentWordsTest.test_ecoli" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
+    <configuration default="false" name="Unittests in spectrum_test (1)" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs />
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/origin/test" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src/test" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="biotec" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/origin/test/frequent_words_test.py" />
-      <option name="CLASS_NAME" value="FrequentWordsTest" />
-      <option name="METHOD_NAME" value="test_ecoli" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/test/spectrum_test.py" />
+      <option name="CLASS_NAME" value="" />
+      <option name="METHOD_NAME" value="" />
       <option name="FOLDER_NAME" value="" />
-      <option name="TEST_TYPE" value="TEST_METHOD" />
+      <option name="TEST_TYPE" value="TEST_SCRIPT" />
       <option name="PATTERN" value="" />
       <option name="USE_PATTERN" value="false" />
       <option name="PUREUNITTEST" value="true" />
@@ -327,17 +382,17 @@
       <ConfigurationWrapper RunnerId="PythonRunner" />
       <method />
     </configuration>
-    <configuration default="false" name="Unittests in frequent_words_test" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
+    <configuration default="false" name="Unittests in translation_test" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs />
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/origin/test" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src/test" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="biotec" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/origin/test/frequent_words_test.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/test/translation_test.py" />
       <option name="CLASS_NAME" value="" />
       <option name="METHOD_NAME" value="" />
       <option name="FOLDER_NAME" value="" />
@@ -423,14 +478,6 @@
       <option name="USE_PARAM" value="false" />
       <method />
     </configuration>
-    <configuration default="true" type="Remote" factoryName="Remote">
-      <option name="USE_SOCKET_TRANSPORT" value="true" />
-      <option name="SERVER_MODE" value="false" />
-      <option name="SHMEM_ADDRESS" value="javadebug" />
-      <option name="HOST" value="localhost" />
-      <option name="PORT" value="5005" />
-      <method />
-    </configuration>
     <configuration default="true" type="PythonConfigurationType" factoryName="Python">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -445,6 +492,14 @@
       <module name="biotec" />
       <option name="SCRIPT_NAME" value="" />
       <option name="PARAMETERS" value="" />
+      <method />
+    </configuration>
+    <configuration default="true" type="Remote" factoryName="Remote">
+      <option name="USE_SOCKET_TRANSPORT" value="true" />
+      <option name="SERVER_MODE" value="false" />
+      <option name="SHMEM_ADDRESS" value="javadebug" />
+      <option name="HOST" value="localhost" />
+      <option name="PORT" value="5005" />
       <method />
     </configuration>
     <configuration default="true" type="tests" factoryName="Unittests">
@@ -467,19 +522,6 @@
       <option name="PUREUNITTEST" value="true" />
       <option name="PARAMS" value="" />
       <option name="USE_PARAM" value="false" />
-      <method />
-    </configuration>
-    <configuration default="true" type="Applet" factoryName="Applet">
-      <module name="" />
-      <option name="MAIN_CLASS_NAME" />
-      <option name="HTML_FILE_NAME" />
-      <option name="HTML_USED" value="false" />
-      <option name="WIDTH" value="400" />
-      <option name="HEIGHT" value="300" />
-      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
-      <option name="VM_PARAMETERS" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
       <method />
     </configuration>
     <configuration default="true" type="TestNG" factoryName="TestNG">
@@ -507,6 +549,19 @@
       <envs />
       <properties />
       <listeners />
+      <method />
+    </configuration>
+    <configuration default="true" type="Applet" factoryName="Applet">
+      <module name="" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="HTML_FILE_NAME" />
+      <option name="HTML_USED" value="false" />
+      <option name="WIDTH" value="400" />
+      <option name="HEIGHT" value="300" />
+      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
+      <option name="VM_PARAMETERS" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
       <method />
     </configuration>
     <configuration default="true" type="Application" factoryName="Application">
@@ -601,6 +656,26 @@
       <option name="FILTER_LOGCAT_AUTOMATICALLY" value="true" />
       <method />
     </configuration>
+    <configuration default="false" name="spectrum" type="PythonConfigurationType" factoryName="Python">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/origin" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="biotec" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/origin/spectrum.py" />
+      <option name="PARAMETERS" value="" />
+      <RunnerSettings RunnerId="PyDebugRunner" />
+      <RunnerSettings RunnerId="PythonRunner" />
+      <ConfigurationWrapper RunnerId="PyDebugRunner" />
+      <ConfigurationWrapper RunnerId="PythonRunner" />
+      <method />
+    </configuration>
     <configuration default="false" name="frequent_words" type="PythonConfigurationType" factoryName="Python">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -621,21 +696,22 @@
       <ConfigurationWrapper RunnerId="PythonRunner" />
       <method />
     </configuration>
-    <list size="6">
-      <item index="0" class="java.lang.String" itemvalue="Python.frequent_words" />
-      <item index="1" class="java.lang.String" itemvalue="Python tests.Unittests in FrequentWordsTest" />
-      <item index="2" class="java.lang.String" itemvalue="Python tests.Unittest FrequentWordsTest.test_clump_overlap" />
-      <item index="3" class="java.lang.String" itemvalue="Python tests.Unittest FrequentWordsTest.test_performance" />
-      <item index="4" class="java.lang.String" itemvalue="Python tests.Unittest FrequentWordsTest.test_ecoli" />
-      <item index="5" class="java.lang.String" itemvalue="Python tests.Unittests in frequent_words_test" />
+    <list size="7">
+      <item index="0" class="java.lang.String" itemvalue="Python.spectrum" />
+      <item index="1" class="java.lang.String" itemvalue="Python.frequent_words" />
+      <item index="2" class="java.lang.String" itemvalue="Python tests.Unittests in Spectrum_Test" />
+      <item index="3" class="java.lang.String" itemvalue="Python tests.Unittests in test" />
+      <item index="4" class="java.lang.String" itemvalue="Python tests.Unittests in origin_test" />
+      <item index="5" class="java.lang.String" itemvalue="Python tests.Unittests in spectrum_test (1)" />
+      <item index="6" class="java.lang.String" itemvalue="Python tests.Unittests in translation_test" />
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="Python tests.Unittests in frequent_words_test" />
-        <item index="1" class="java.lang.String" itemvalue="Python tests.Unittest FrequentWordsTest.test_ecoli" />
-        <item index="2" class="java.lang.String" itemvalue="Python tests.Unittests in FrequentWordsTest" />
-        <item index="3" class="java.lang.String" itemvalue="Python tests.Unittest FrequentWordsTest.test_clump_overlap" />
-        <item index="4" class="java.lang.String" itemvalue="Python tests.Unittest FrequentWordsTest.test_performance" />
+        <item index="0" class="java.lang.String" itemvalue="Python tests.Unittests in translation_test" />
+        <item index="1" class="java.lang.String" itemvalue="Python tests.Unittests in spectrum_test (1)" />
+        <item index="2" class="java.lang.String" itemvalue="Python tests.Unittests in test" />
+        <item index="3" class="java.lang.String" itemvalue="Python tests.Unittests in origin_test" />
+        <item index="4" class="java.lang.String" itemvalue="Python tests.Unittests in Spectrum_Test" />
       </list>
     </recent_temporary>
     <configuration name="&lt;template&gt;" type="WebApp" default="true" selected="false">
@@ -669,36 +745,68 @@
       <created>1414703099841</created>
       <updated>1414703099841</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="ecoli clump finding  working">
+      <created>1414773590393</created>
+      <updated>1414773590393</updated>
+    </task>
+    <task id="LOCAL-00006" summary="ecoli clump finding  working">
+      <created>1414787709901</created>
+      <updated>1414787709901</updated>
+    </task>
+    <task id="LOCAL-00007" summary="mismatches slow">
+      <created>1415045124225</created>
+      <updated>1415045124225</updated>
+    </task>
+    <task id="LOCAL-00008" summary="mismatches and reverse slow">
+      <created>1415048420512</created>
+      <updated>1415048420512</updated>
+    </task>
+    <task id="LOCAL-00009" summary="translation">
+      <created>1415137296532</created>
+      <updated>1415137296532</updated>
+    </task>
+    <task id="LOCAL-00010" summary="better find encoding, not working">
+      <created>1415224324372</created>
+      <updated>1415224324372</updated>
+    </task>
+    <task id="LOCAL-00011" summary="better peptide ok, brevis 0">
+      <created>1415280473574</created>
+      <updated>1415280473574</updated>
+    </task>
+    <task id="LOCAL-00012" summary="theoretical spectrum">
+      <created>1415364264815</created>
+      <updated>1415364264815</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="221" y="129" width="1689" height="950" extended-state="0" />
+    <frame x="230" y="122" width="1689" height="950" extended-state="0" />
     <editor active="false" />
     <layout>
       <window_info id="Palette&#9;" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Changes" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3295325" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3295325" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25883695" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3990878" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3295325" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39794755" sideWeight="0.49970397" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39794755" sideWeight="0.50029606" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3295325" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.16400237" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.331813" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.16400237" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.31242874" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3295325" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
     </layout>
   </component>
   <component name="Vcs.Log.UiProperties">
@@ -722,15 +830,27 @@
     <MESSAGE value="simpler clump" />
     <MESSAGE value="more stuff" />
     <MESSAGE value="orderedset" />
-    <option name="LAST_COMMIT_MESSAGE" value="orderedset" />
+    <MESSAGE value="ecoli clump finding  working" />
+    <MESSAGE value="mismatches slow" />
+    <MESSAGE value="mismatches and reverse slow" />
+    <MESSAGE value="translation" />
+    <MESSAGE value="better find encoding, not working" />
+    <MESSAGE value="better peptide ok, brevis 0" />
+    <MESSAGE value="theoretical spectrum" />
+    <option name="LAST_COMMIT_MESSAGE" value="theoretical spectrum" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="python-line">
-          <url>file://$PROJECT_DIR$/origin/frequent_words.py</url>
-          <line>243</line>
-          <option name="timeStamp" value="30" />
+          <url>file://$PROJECT_DIR$/src/origin.py</url>
+          <line>295</line>
+          <option name="timeStamp" value="44" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="python-line">
+          <url>file://$PROJECT_DIR$/src/translation.py</url>
+          <line>83</line>
+          <option name="timeStamp" value="78" />
         </line-breakpoint>
       </breakpoints>
       <breakpoints-dialog>
@@ -743,7 +863,7 @@
           </properties>
         </breakpoint>
       </default-breakpoints>
-      <option name="time" value="37" />
+      <option name="time" value="84" />
     </breakpoint-manager>
   </component>
   <component name="antWorkspaceConfiguration">
@@ -751,7 +871,31 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/origin/frequent_words.py">
+    <entry file="file://$PROJECT_DIR$/src/translation.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="1157" max-vertical-offset="1746">
+          <caret line="90" column="19" selection-start-line="90" selection-start-column="19" selection-end-line="90" selection-end-column="19" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/translation.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="314" max-vertical-offset="864">
+          <caret line="37" column="4" selection-start-line="37" selection-start-column="4" selection-end-line="37" selection-end-column="4" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/origin.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="4196" max-vertical-offset="5580">
+          <caret line="245" column="32" selection-start-line="245" selection-start-column="32" selection-end-line="245" selection-end-column="32" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/origin.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="4797" max-vertical-offset="5688">
           <caret line="284" column="0" selection-start-line="284" selection-start-column="0" selection-end-line="284" selection-end-column="0" />
@@ -759,7 +903,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/origin/frequent_words.py">
+    <entry file="file://$PROJECT_DIR$/src/origin.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="324" max-vertical-offset="4842">
           <caret line="18" column="36" selection-start-line="18" selection-start-column="36" selection-end-line="18" selection-end-column="36" />
@@ -767,7 +911,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/origin/frequent_words.py">
+    <entry file="file://$PROJECT_DIR$/src/origin.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="4563" max-vertical-offset="5742">
           <caret line="265" column="50" selection-start-line="265" selection-start-column="32" selection-end-line="265" selection-end-column="50" />
@@ -775,7 +919,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/origin/frequent_words.py">
+    <entry file="file://$PROJECT_DIR$/src/origin.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="3843" max-vertical-offset="5472">
           <caret line="225" column="31" selection-start-line="225" selection-start-column="31" selection-end-line="225" selection-end-column="31" />
@@ -783,7 +927,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/origin/frequent_words.py">
+    <entry file="file://$PROJECT_DIR$/src/origin.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="2763" max-vertical-offset="4320">
           <caret line="172" column="51" selection-start-line="172" selection-start-column="51" selection-end-line="172" selection-end-column="51" />
@@ -791,32 +935,17 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/sequence/alignment/SubstitutionMatrix.py">
+    <entry file="file://$PROJECT_DIR$/src/sequence/alignment/SubstitutionMatrix.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.030664396" vertical-offset="0" max-vertical-offset="587">
           <caret line="1" column="0" selection-start-line="1" selection-start-column="0" selection-end-line="1" selection-end-column="0" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/origin/test/__init__.py">
+    <entry file="file://$PROJECT_DIR$/src/test/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="587">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$APPLICATION_PLUGINS_DIR$/python/helpers/pydev/pydevd.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.42105263" vertical-offset="13302" max-vertical-offset="30132">
-          <caret line="816" column="0" selection-start-line="751" selection-start-column="0" selection-end-line="751" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///usr/lib/python2.7/unittest/case.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.27364865" vertical-offset="8712" max-vertical-offset="19188">
-          <caret line="505" column="8" selection-start-line="493" selection-start-column="8" selection-end-line="493" selection-end-column="8" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -827,14 +956,14 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/tools/OrderedSet.py">
+    <entry file="file://$PROJECT_DIR$/src/tools/OrderedSet.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="72" max-vertical-offset="1350">
           <caret line="4" column="36" selection-start-line="4" selection-start-column="36" selection-end-line="4" selection-end-column="36" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/origin/data/skew.txt">
+    <entry file="file://$PROJECT_DIR$/src/data/skew.txt">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="100">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -848,26 +977,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/origin/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="592">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/.IdeaIC13/system/python_stubs/-1247972723/__builtin__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.6993243" vertical-offset="7452" max-vertical-offset="92232">
-          <caret line="437" column="0" selection-start-line="437" selection-start-column="0" selection-end-line="437" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/origin/data/E-coli.txt">
+    <entry file="file://$PROJECT_DIR$/src/data/E-coli.txt">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="100">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -875,22 +988,186 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="234" max-vertical-offset="3690">
           <caret line="13" column="4" selection-start-line="13" selection-start-column="4" selection-end-line="13" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/data/test_clump.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="100">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.IdeaIC13/system/python_stubs/-1247972723/_io.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.6746167" vertical-offset="5670" max-vertical-offset="24408">
+          <caret line="337" column="0" selection-start-line="337" selection-start-column="0" selection-end-line="337" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/origin/test/frequent_words_test.py">
+    <entry file="file:///usr/lib/python2.7/UserString.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-0.26153848" vertical-offset="207" max-vertical-offset="792">
-          <caret line="5" column="0" selection-start-line="3" selection-start-column="0" selection-end-line="3" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.3927273" vertical-offset="1872" max-vertical-offset="4194">
+          <caret line="117" column="8" selection-start-line="116" selection-start-column="8" selection-end-line="116" selection-end-column="8" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/origin/frequent_words.py">
+    <entry file="file://$APPLICATION_PLUGINS_DIR$/python/helpers/pydev/pydevd.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.8483816" vertical-offset="3642" max-vertical-offset="4518">
-          <caret line="232" column="42" selection-start-line="232" selection-start-column="42" selection-end-line="232" selection-end-column="42" />
+        <state vertical-scroll-proportion="0.7548638" vertical-offset="29618" max-vertical-offset="30132">
+          <caret line="1732" column="0" selection-start-line="1667" selection-start-column="0" selection-end-line="1668" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/data/thermotoga.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="100">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/lib/python2.7/unittest/case.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="8874" max-vertical-offset="19188">
+          <caret line="505" column="8" selection-start-line="493" selection-start-column="8" selection-end-line="493" selection-end-column="8" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="550">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/resources/genetic_code_tc.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.7950664" vertical-offset="733" max-vertical-offset="1260">
+          <caret line="64" column="0" selection-start-line="64" selection-start-column="0" selection-end-line="64" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/resources/Tyrocidine_B1.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="876">
+          <caret line="0" column="10" selection-start-line="0" selection-start-column="10" selection-end-line="0" selection-end-column="10" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/data/translate.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="589">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.IdeaIC13/system/python_stubs/-1247972723/__builtin__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="35892" max-vertical-offset="92232">
+          <caret line="1994" column="8" selection-start-line="1994" selection-start-column="8" selection-end-line="1994" selection-end-column="8" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/data/B_brevis.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.85615253" vertical-offset="1888426" max-vertical-offset="1889028">
+          <caret line="104940" column="36" selection-start-line="104940" selection-start-column="36" selection-end-line="104940" selection-end-column="36" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/resources/genetic_code.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.22259136" vertical-offset="640" max-vertical-offset="1242">
+          <caret line="43" column="5" selection-start-line="43" selection-start-column="5" selection-end-line="43" selection-end-column="5" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/origin.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="594" max-vertical-offset="6156">
+          <caret line="35" column="4" selection-start-line="33" selection-start-column="4" selection-end-line="33" selection-end-column="4" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/data/peptide_encoding.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.030560272" vertical-offset="0" max-vertical-offset="589">
+          <caret line="1" column="7" selection-start-line="1" selection-start-column="0" selection-end-line="1" selection-end-column="9" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/resources/aminoacids.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.269103" vertical-offset="0" max-vertical-offset="602">
+          <caret line="9" column="9" selection-start-line="9" selection-start-column="9" selection-end-line="9" selection-end-column="9" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/resources/integer_mass_table.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.5681063" vertical-offset="0" max-vertical-offset="602">
+          <caret line="19" column="5" selection-start-line="19" selection-start-column="5" selection-end-line="19" selection-end-column="5" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/data/theoretical_spectrum.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.030560272" vertical-offset="0" max-vertical-offset="589">
+          <caret line="1" column="4" selection-start-line="1" selection-start-column="4" selection-end-line="1" selection-end-column="4" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/translation.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-0.049833886" vertical-offset="570" max-vertical-offset="2196">
+          <caret line="32" column="14" selection-start-line="30" selection-start-column="14" selection-end-line="30" selection-end-column="14" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/spectrum.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.19269103" vertical-offset="64" max-vertical-offset="666">
+          <caret line="10" column="0" selection-start-line="10" selection-start-column="0" selection-end-line="10" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/origin_test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.089701" vertical-offset="36" max-vertical-offset="792">
+          <caret line="7" column="12" selection-start-line="5" selection-start-column="12" selection-end-line="5" selection-end-column="12" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/translation_test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.059800666" vertical-offset="0" max-vertical-offset="602">
+          <caret line="2" column="22" selection-start-line="0" selection-start-column="0" selection-end-line="1" selection-end-column="27" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/spectrum_test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.358804" vertical-offset="0" max-vertical-offset="602">
+          <caret line="13" column="0" selection-start-line="13" selection-start-column="0" selection-end-line="13" selection-end-column="0" />
           <folding />
         </state>
       </provider>
