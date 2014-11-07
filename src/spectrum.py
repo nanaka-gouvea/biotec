@@ -9,6 +9,15 @@ def a_masses_map():
 a_masses = a_masses_map()
 
 
+def reverse_a_map():
+    reverse = defaultdict(lambda: [])
+    for k, v in a_masses.iteritems():
+        reverse[v].append(k)
+    return reverse
+
+r_a_map = reverse_a_map()
+
+
 def count_fragment_peptide(l):
     return l * (l - 1)
 
@@ -28,4 +37,3 @@ def theoretical_spectrum(pep):
         masses.append(sum([a_masses[a] for a in sub]))
     return sorted(masses)
 
-print ' '.join(str(x) for x in theoretical_spectrum("QIPMCIHPMAMC"))
