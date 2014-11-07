@@ -25,7 +25,7 @@ def reverse_t_map():
         reverse[v].append(k)
     return reverse
 
-reverse_t_map = reverse_t_map()
+r_t_map = reverse_t_map()
 
 
 def translate_peptide(seq):
@@ -33,10 +33,33 @@ def translate_peptide(seq):
     return ''.join(aminoacids)
 
 
+def translate_peptide_matching(geno, k, p, reverse, matches):
+    seq = transcribe(geno) if reverse else transcribe(reverse_complement(geno))
+    l = k * 3
+    i = 0
+    # found = False
+    while i < (len(seq)-l):
+        j = 0
+        while j < len(p)-3:
+            a = p[j]
+            s = i + j * 3
+            if seq[s:s+3] not in r_t_map[a]:
+                i += l - j*3
+                # found = False
+                break
+            elif a == p[-1]:
+                # found = True
+                matches.append(geno[i:i+l])
+                i += 1
+                break
+            else:
+                j += 3
+
+
 def count_linear_peptyde_codons(aminoacids):
     count = 1
     for a in aminoacids:
-        count *= len(reverse_t_map[a])
+        count *= len(r_t_map[a])
     return count
 
 
@@ -46,24 +69,6 @@ def transcribe(genome):
 
 def unscribe(genome):
     return genome.replace("U", "T")
-
-
-def verify_encoding(genome, i, k, peptide, seqs):
-    while i <= len(genome) - k:
-        word = genome[i:i + k]
-        transc1 = transcribe(word)
-        transc2 = transcribe(reverse_complement(word))
-        if translate_peptide(transc1) == peptide or translate_peptide(transc2) == peptide:
-            seqs.append(word)
-        i += 1
-
-
-def find_peptide_encoding(genome, peptide):
-    k = len(peptide) * 3
-    seqs = []
-    for i in [0,1,2]:
-        verify_encoding(genome, i, k, peptide, seqs)
-    return seqs
 
 
 def better_verify_encoding(genome, k, peptide):
@@ -87,7 +92,28 @@ def better_find_peptide_encoding(genome, peptide):
     subs.extend([reverse_complement(s) for s in better_verify_encoding(transcribe(reverse_complement(genome)), k, peptide)])
     return subs
 
-# gen = ''.join(get_file("/data/B_brevis.txt").read().splitlines())
-gen = get_file("/data/B_brevis.txt").read().replace("\n", "")
-tyrocidine = get_file("/resources/Tyrocidine_B1.txt").readline().strip()
-# print len(better_find_peptide_encoding(gen, tyrocidine))
+
+def even_better_find_peptide_encoding(genome, peptide):
+    k = len(peptide)
+    subs = []
+    translate_peptide_matching(genome, k, peptide, False, subs)
+    translate_peptide_matching(genome, k, peptide, True, subs)
+    return subs
+
+
+def verify_encoding(genome, i, k, peptide, seqs):
+    while i <= len(genome) - k:
+        word = genome[i:i + k]
+        transc1 = transcribe(word)
+        transc2 = transcribe(reverse_complement(word))
+        if translate_peptide(transc1) == peptide or translate_peptide(transc2) == peptide:
+            seqs.append(word)
+        i += 1
+
+
+def find_peptide_encoding(genome, peptide):
+    k = len(peptide) * 3
+    seqs = []
+    for i in [0,1,2]:
+        verify_encoding(genome, i, k, peptide, seqs)
+    return seqs
