@@ -1,3 +1,6 @@
+import re
+from itertools import cycle
+
 __author__ = 'natalia'
 
 from translation import *
@@ -56,7 +59,7 @@ def theoretical_spectrum(pep, cyclic):
     return sorted(masses)
 
 
-def possible_peptides_from_spectrum(spec, p, cyclic):
+def possible_peptides_from_spectrum(spec, p, cyclic, aminoacids=None):
     # and theoretical_spectrum(p) == spec
     p_spec_size = (count_fragment_cyclic_peptide(len(p)) + 2) if cyclic else count_fragment_linear_peptide(len(p))
     if p_spec_size == len(spec) and theoretical_spectrum(p, cyclic) == spec:
@@ -65,10 +68,16 @@ def possible_peptides_from_spectrum(spec, p, cyclic):
         else:
             return None
     branch = []
-    for k in a_masses.keys():
+    if aminoacids is None:
+        aminoacids = a_masses.keys()
+    b_aminoacids = aminoacids
+    for k in aminoacids:
         new = p + k
         if total_mass(new) in spec:
-            branch.extend(possible_peptides_from_spectrum(spec, new, cyclic))
+            branch.extend(possible_peptides_from_spectrum(spec, new, cyclic, b_aminoacids))
+        else:
+            if len(new) == 1:
+                b_aminoacids.remove(k)
     return branch
 
 
@@ -86,4 +95,12 @@ def find_linear_peptides_by_spectrum(spec):
 # print theoretical_spectrum("NQEI")
 
 
-print find_cyclic_peptides_by_spectrum(', '.join("0,	97	99	113	114	128	128	147	147	163	186	227	241	242	244 260	261	262	283	291	333	340	357	388	389	390	390	405	430	430 447	485	487	503	504	518	543	544	552	575	577	584	631	632	650 651	671	672	690	691	738	745	747	770	778	779	804	818	819	835 837	875	892	892	917	932	932	933	934	965	982	989	1031	1039	1060 1061	1062	1078	1080	1081	1095	1136	1159	1175	1175	1194	1194	1208	1209	1223 1225	1322	".split(" ")))
+# test = re.compile("\s+").split("0	97	99	113	114	128	128	147	147	163	186	227	241	242	244 260	261	262	283	291	333	340	357	388	389	390	390	405	430	430 447	485	487	503	504	518	543	544	552	575	577	584	631	632	650 651	671	672	690	691	738	745	747	770	778	779	804	818	819	835 837	875	892	892	917	932	932	933	934	965	982	989	1031	1039	1060 1061	1062	1078	1080	1081	1095	1136	1159	1175	1175	1194	1194	1208	1209	1223 1225	1322")
+# ty_b1_spec = [int(x) for x in test]
+# print find_cyclic_peptides_by_spectrum(ty_b1_spec)
+
+# print 'VKLFPWFNQY' in ['IFPWFNKYVK', 'IFPWFNKYVQ', 'IFPWFNQYVK', 'IFPWFNQYVQ', 'IKVYKNFWPF', 'IKVYQNFWPF', 'IQVYKNFWPF', 'IQVYQNFWPF', 'NFWPFIKVYK', 'NFWPFIKVYQ', 'NFWPFIQVYK', 'NFWPFIQVYQ', 'NFWPFLKVYK', 'NFWPFLKVYQ', 'NFWPFLQVYK', 'NFWPFLQVYQ', 'NKYVKIFPWF', 'NKYVKLFPWF', 'NKYVQIFPWF', 'NKYVQLFPWF', 'NQYVKIFPWF', 'NQYVKLFPWF', 'NQYVQIFPWF', 'NQYVQLFPWF', 'QIFPWFNKYV', 'QIFPWFNQYV', 'QLFPWFNKYV', 'QLFPWFNQYV', 'QNFWPFIKVY', 'QNFWPFIQVY', 'QNFWPFLKVY', 'QNFWPFLQVY', 'QVYKNFWPFI', 'QVYKNFWPFL', 'QVYQNFWPFI', 'QVYQNFWPFL', 'QYVKIFPWFN', 'QYVKLFPWFN', 'QYVQIFPWFN', 'QYVQLFPWFN', 'PFIKVYKNFW', 'PFIKVYQNFW', 'PFIQVYKNFW', 'PFIQVYQNFW', 'PFLKVYKNFW', 'PFLKVYQNFW', 'PFLQVYKNFW', 'PFLQVYQNFW', 'PWFNKYVKIF', 'PWFNKYVKLF', 'PWFNKYVQIF', 'PWFNKYVQLF', 'PWFNQYVKIF', 'PWFNQYVKLF', 'PWFNQYVQIF', 'PWFNQYVQLF', 'VKIFPWFNKY', 'VKIFPWFNQY', 'VKLFPWFNKY', 'VKLFPWFNQY', 'VQIFPWFNKY', 'VQIFPWFNQY', 'VQLFPWFNKY', 'VQLFPWFNQY', 'VYKNFWPFIK', 'VYKNFWPFIQ', 'VYKNFWPFLK', 'VYKNFWPFLQ', 'VYQNFWPFIK', 'VYQNFWPFIQ', 'VYQNFWPFLK', 'VYQNFWPFLQ', 'YKNFWPFIKV', 'YKNFWPFIQV', 'YKNFWPFLKV', 'YKNFWPFLQV', 'YQNFWPFIKV', 'YQNFWPFIQV', 'YQNFWPFLKV', 'YQNFWPFLQV', 'YVKIFPWFNK', 'YVKIFPWFNQ', 'YVKLFPWFNK', 'YVKLFPWFNQ', 'YVQIFPWFNK', 'YVQIFPWFNQ', 'YVQLFPWFNK', 'YVQLFPWFNQ']
+# VKLFPWFNQY
+
+# for p in cycle("abc"):
+#     print "endless cycle:", p
