@@ -1,6 +1,6 @@
 import os
 from collections import defaultdict
-from origin import *
+from origin import reverse_complement
 
 __author__ = 'natalia'
 
