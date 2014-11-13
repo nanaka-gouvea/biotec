@@ -50,8 +50,6 @@ class SpectrumTest(TestCase):
         for p in peps:
             leaders[p] = peptide_score(p, spectrum, False)
         trim_peptides(leaders, 5)
-        result = ' '.join(leaders.keys())
-
+        result = leaders.keys()
         expected = "WASIGAIMRSAKDMYESLEFHKTHCTYFVYMVCKEARPGWTFFIEWV YYGYRQCSWCQRWTVRRMLCWIDVLHKALHWHVCLLFHQALYGFSHE WDTDTFFQKAMLKKDETADQIFNLRPYSLTCHNENILGNDNQEKQAG YDSPTTYLSTHCHRLTNRMVHENPVICPPQDFAKYLIQSGWEFPLVA MAPRDIRMYFDKYHETAALDSQWIIQQIYHLMNVRKLNRTNRFTSVG FEKYHQQQILIDAQRVRLVHTVARAGPGWVQTGGWQQTCPRYKPYAW".split(" ")
-
-        print set(expected) == set(result)
+        self.assertEqual(set(expected), set(result))
