@@ -53,3 +53,8 @@ class SpectrumTest(TestCase):
         result = leaders.keys()
         expected = "WASIGAIMRSAKDMYESLEFHKTHCTYFVYMVCKEARPGWTFFIEWV YYGYRQCSWCQRWTVRRMLCWIDVLHKALHWHVCLLFHQALYGFSHE WDTDTFFQKAMLKKDETADQIFNLRPYSLTCHNENILGNDNQEKQAG YDSPTTYLSTHCHRLTNRMVHENPVICPPQDFAKYLIQSGWEFPLVA MAPRDIRMYFDKYHETAALDSQWIIQQIYHLMNVRKLNRTNRFTSVG FEKYHQQQILIDAQRVRLVHTVARAGPGWVQTGGWQQTCPRYKPYAW".split(" ")
         self.assertEqual(set(expected), set(result))
+
+    def test_mass_leaderboard(self):
+        spe = [int(x) for x in "0 71 113 129 147 200 218 260 313 331 347 389 460".split(" ")]
+        leader = masses_leaderboard_cyclic(spe, 10)
+        self.assertEqual("113-147-71-129",leader[0])
