@@ -104,24 +104,44 @@ def expand_peptides_board(peps, spec, aminoacids):
     return expanded
 
 
-def trim(leader_board, t):
+def old_trim(leader_board, t, ties=True):
     llen = len(leader_board)
     if llen > t:
         sorted_scores = sorted(leader_board.values())
         sorted_scores.reverse()
-        limit = sorted_scores[t]
-        # sorted_scores[96]
-        for i in range(len(sorted_scores))[t:]:
-            tie_cut = sorted_scores[i]
-            if tie_cut < limit:
-                sorted_scores = sorted_scores[:i]
-                break
+        # limit = sorted_scores[t]
+        # if ties:
+        #     for i in range(len(sorted_scores))[t:]:
+        #         tie_cut = sorted_scores[i]
+        #         if tie_cut < limit:
+        #             sorted_scores = sorted_scores[:i]
+        #             break
+        # else:
+        sorted_scores = sorted_scores[:t]
         aux_leader_board = leader_board.copy()
         for k,v in aux_leader_board.iteritems():
             if v in sorted_scores:
                 continue
             else:
                 del leader_board[k]
+    return leader_board
+
+
+def trim(leader_board, t, ties=True):
+    llen = len(leader_board)
+    if llen > t:
+        sorted_peptides = sorted(leader_board.iterkeys(), key=lambda k: leader_board[k])
+        sorted_peptides.reverse()
+        if ties:
+            limit = leader_board[sorted_peptides[t]]
+            aux_leader_board = leader_board.copy()
+            for k,v in aux_leader_board.iteritems():
+                if v >= limit:
+                    continue
+                else:
+                    del leader_board[k]
+        else:
+            leader_board = {k:leader_board[k] for k in sorted_peptides[:t]}
     return leader_board
 
 
@@ -142,6 +162,25 @@ def leader_board_experimental_spectrum(spec, t, c_masses):
                 del leader_board[pep]
         trim(leader_board, t)
     return leader[0]
+
+
+def leader_board_experimental_spectrum_linear_collection(spec, t, c_masses, h):
+    parent_mass = spec[-1]
+    leaders = {"":0}
+    leader_board = {"":0}
+    while len(leader_board) > 0:
+        leader_board = expand_peptides_board(leader_board, spec, c_masses)
+        for pep, s in leader_board.copy().iteritems():
+            pep_s = pep.split("-")
+            p_mass = total_mass(pep_s)
+            if p_mass == parent_mass:
+                leaders[pep] = s
+            elif p_mass > parent_mass:
+                del leader_board[pep]
+        trim(leader_board, t)
+
+    trim(leaders, h)
+    return leaders
 
 
 def convolution(spec):
@@ -181,10 +220,7 @@ def convolution_cyclopeptide_sequencing(m, n, spectrum):
     return leader_board_experimental_spectrum(spectrum, n, conv.keys())
 
 
-# spe = [int(x) for x in "0 57 57 71 99 129 137 170 186 194 208 228 265 285 299 307 323 356 364 394 422 493".split(" ")]
-# print convolution_cyclopeptide_sequencing(20, 60, spe)
-
-spe = sorted([int(x) for x in "1023 502 1285 99 1262 1285 986 495 1325 691 783 1186 542 1236 236 1422 1037 186 385 436 773 300 236 1031 1365 231 937 1259 486 792 1186 1323 936 186 1210 288 771 1236 163 57 979 824 283 1024 250 451 1222 1123 1073 485 99 1073 735 391 938 356 887 394 1049 536 834 200 649 651 880 1036 1139 1156 1191 349 97 674 571 851 1165 1019 634 299 835 767 196 266 299 160 488 103 398 672 1134 103 790 349 1028 598 403 386 128 655 974 920 1040 1137 1237 0 1294 535 837 585 632 788 868 448 630 1309 137 887 750 670 1123 886 971 288 1134 382 535 1066 687 588 113 484 185 587 443 1172 99 934 1335 1122 1323 554 137 752 285 87 1319 748 927 1319 731 1323 373 891 1226 639 531 257 212 399".split(" ")])
-print convolution_cyclopeptide_sequencing(16, 326, spe)
-
-
+def convolution_cyclopeptide_sequencing_collection(m, n, spectrum, h):
+    conv = convolution_map(spectrum)
+    trim(conv, m)
+    return leader_board_experimental_spectrum_linear_collection(spectrum, n, conv.keys(), h)
