@@ -180,7 +180,7 @@ def arrange_repeated(letters, size):
 def arrange_repeated_dna(size):
     return arrange_repeated(pool, size)
 
-def better_neighbors(letters, size, pattern, d):
+def generate_neighbourhood(letters, size, pattern, d):
     if size == 0:
         return []
     result = []
@@ -188,7 +188,7 @@ def better_neighbors(letters, size, pattern, d):
         for l in letters:
             result.append(l)
         return result
-    for a in better_neighbors(letters, size - 1, pattern, d):
+    for a in generate_neighbourhood(letters, size - 1, pattern, d):
         for i in range(len(letters)):
             nei = letters[i] + a[:i] + a[i:]
             if len(pattern) != len(nei) or hamming_d(pattern, nei) <= d:
@@ -203,7 +203,7 @@ def better_neighbors_reverse(letters, size, pattern, d):
         for l in letters:
             result.append(l)
         return result
-    for a in better_neighbors(letters, size - 1, pattern, d):
+    for a in generate_neighbourhood(letters, size - 1, pattern, d):
         for i in range(len(letters)):
             nei = letters[i] + a[:i] + a[i:]
             if len(pattern) != len(nei) or hamming_d(pattern, nei) <= d:
@@ -288,13 +288,13 @@ def find_specific_clump():
             print [sixs[i], sixs[i + 1], sixs[i + 2], sixs[i + 3], sixs[i + 4]]
         i += 1
 
+
 def most_frequent_words_aprox(seq, k, d):
     most = ()
     n_hood = []
-    # possible = arrange_repeated(pool, k)
 
     for i in range(len(seq) - (k - 1)):
-        n_hood.extend(better_neighbors(pool, k, seq[i:i + k], d))
+        n_hood.extend(generate_neighbourhood(pool, k, seq[i:i + k], d))
 
     n_hood = sorted(n_hood)
     max_count = 0
@@ -311,6 +311,7 @@ def most_frequent_words_aprox(seq, k, d):
         else:
             count = 1
     return most
+
 
 def most_frequent_words_aprox_reverse(seq, k, d):
     most = ()
