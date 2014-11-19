@@ -5,6 +5,8 @@ from origin import pool
 from origin import pattern_count_aprox
 from translation import get_file
 from math import log
+from origin import hamming_d
+from origin import arrange_repeated_dna
 
 
 def motif_enumeration(dna, k, d):
@@ -72,12 +74,39 @@ def entropy_motif(profile):
         entropy = 0.0
         for k, v in profile.iteritems():
             p = v[column]
-            if p > 0:
+            if p > 0.0:
                 entropy += (p * log(p, 2))
         total_entropy.append(abs(entropy))
     return sum(total_entropy)
 
 
+def distance(pattern, dna):
+    k = len(pattern)
+    d = 0
+    for s in dna:
+        hd = k
+        for i in range(len(s) - k):
+            p = s[i:i + k]
+            nhd = hamming_d(pattern, p)
+            if nhd < hd:
+                hd = nhd
+        d += hd
+    return d
+
+
+def median_string(k, dna):
+    min_d = k * len(dna)
+    median = ""
+    possible = arrange_repeated_dna(k)
+    for p in possible:
+        nd = distance(p, dna)
+        if nd < min_d:
+            min_d = nd
+            median = p
+    return median
+
 # motif_mx = [l.replace(" ", "") for l in get_file("/data/motif_matrix.txt").read().splitlines()]
 # pmap = profile_motif(motif_mx)
-# print entropy_motif(pmap)
+
+print median_string(6, "ACGAGGGATAGTAATGCCTTGACGATGATATAGGAAGCGCGT AGACATATCATCCTCAGGTCCTAACAATAGGCGAGGTATGCA TCGAGGTACGGGTACACAGCTTGGATGCGGTGGGATGAAGGA CCGAGGGTCATTGCTGCGAACGTTTGACGCGTCTCTGTTCCT TGGATGAAGAATTATGAGATTCGACGTCGGGCGAGGAGTTAT TAGCTGAGGAACTTGACGTCCAGCTCGAGGCGTGGGCCCTTG GGGATCACGAGGGCGGCAAACAGCAAAAATCTTCCGATTACA TGACTCACATGTTCTCGCCTTTTATCAAAGCCGAGGTTCCTT GCGAGGACCAAAGAGCTGGCCGTTCGGTCTGGTTCGTCTATA CGAAGAATAGTGAAAATATTTTGTGCGAGGGTCCGGTTAGAG".split(" "))
+# GCGAGG

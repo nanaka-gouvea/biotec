@@ -164,6 +164,7 @@ def anagrams(word):
             result.append(ana[:i] + word[0] + ana[i:])
     return sorted(result)
 
+
 def arrange_repeated(letters, size):
     if size == 0:
         return []
@@ -177,8 +178,10 @@ def arrange_repeated(letters, size):
             result.append(letters[i] + a[:i] + a[i:])
     return result
 
+
 def arrange_repeated_dna(size):
     return arrange_repeated(pool, size)
+
 
 def generate_neighbourhood(letters, size, pattern, d):
     if size == 0:
@@ -194,6 +197,7 @@ def generate_neighbourhood(letters, size, pattern, d):
             if len(pattern) != len(nei) or hamming_d(pattern, nei) <= d:
                 result.append(nei)
     return result
+
 
 def better_neighbors_reverse(letters, size, pattern, d):
     if size == 0:

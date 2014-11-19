@@ -4,6 +4,7 @@ from src.motif import motif_enumeration
 from src.motif import profile_motif
 from src.motif import consensus
 from src.motif import entropy_motif
+from src.motif import median_string
 
 
 class MotifTest(TestCase):
@@ -22,3 +23,7 @@ class MotifTest(TestCase):
         motif_mx = [l.replace(" ", "") for l in open("../data/motif_matrix.txt").read().splitlines()]
         pmap = profile_motif(motif_mx)
         self.assertEqual(9.91629000536, round(entropy_motif(pmap), 11))
+
+    def test_median_string(self):
+        ms = median_string(6, "ACGAGGGATAGTAATGCCTTGACGATGATATAGGAAGCGCGT AGACATATCATCCTCAGGTCCTAACAATAGGCGAGGTATGCA TCGAGGTACGGGTACACAGCTTGGATGCGGTGGGATGAAGGA CCGAGGGTCATTGCTGCGAACGTTTGACGCGTCTCTGTTCCT TGGATGAAGAATTATGAGATTCGACGTCGGGCGAGGAGTTAT TAGCTGAGGAACTTGACGTCCAGCTCGAGGCGTGGGCCCTTG GGGATCACGAGGGCGGCAAACAGCAAAAATCTTCCGATTACA TGACTCACATGTTCTCGCCTTTTATCAAAGCCGAGGTTCCTT GCGAGGACCAAAGAGCTGGCCGTTCGGTCTGGTTCGTCTATA CGAAGAATAGTGAAAATATTTTGTGCGAGGGTCCGGTTAGAG".split(" "))
+        self.assertEqual("GCGAGG", ms)
