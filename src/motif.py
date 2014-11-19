@@ -4,6 +4,7 @@ from origin import generate_neighbourhood
 from origin import pool
 from origin import pattern_count_aprox
 from translation import get_file
+from math import log
 
 
 def motif_enumeration(dna, k, d):
@@ -65,6 +66,18 @@ def consensus(profile):
     return cons
 
 
-motif_mx = [l.replace(" ", "") for l in get_file("/data/motif_matrix.txt").read().splitlines()]
-pmap = profile_motif(motif_mx)
-print ''.join(consensus(pmap))
+def entropy_motif(profile):
+    total_entropy = []
+    for column in range(len(profile.values()[0])):
+        entropy = 0.0
+        for k, v in profile.iteritems():
+            p = v[column]
+            if p > 0:
+                entropy += (p * log(p, 2))
+        total_entropy.append(abs(entropy))
+    return sum(total_entropy)
+
+
+# motif_mx = [l.replace(" ", "") for l in get_file("/data/motif_matrix.txt").read().splitlines()]
+# pmap = profile_motif(motif_mx)
+# print entropy_motif(pmap)
