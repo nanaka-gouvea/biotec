@@ -34,21 +34,37 @@ def score_motif(mots):
                 count += 1
     return count
 
+
 def count_motif(mots):
-    prob = {"A": {}, "C":{}, "G":{}, "T":{}}
+    prob = {n : [0.0 for i in mots[0]] for n in pool}
     for m in mots:
         for i in range(len(m)):
             n = m[i].upper()
-            try:
-                prob[n][i] += 1
-            except KeyError:
-                prob[n][i] = 1
+            prob[n][i] += 1
     return prob
 
+
+def profile_motif(mots):
+    rows = len(mots)
+    profile = count_motif(mots)
+    for k, columns in profile.iteritems():
+        for i in range(len(columns)):
+            profile[k][i] /= rows
+    return profile
+
+
+def consensus(profile):
+    columns = profile.values()[0]
+    cons = ""
+    for i in range(len(columns)):
+        max_p = ("", 0.0)
+        for k, v in profile.iteritems():
+            if v[i] > max_p[1]:
+                max_p = (k, v[i])
+        cons += max_p[0]
+    return cons
+
+
 motif_mx = [l.replace(" ", "") for l in get_file("/data/motif_matrix.txt").read().splitlines()]
-cmap = count_motif(motif_mx)
-
-for k, v in cmap.iteritems():
-    print k, ": ", ' '.join([str(x) for x in v.values()])
-
-
+pmap = profile_motif(motif_mx)
+print ''.join(consensus(pmap))
