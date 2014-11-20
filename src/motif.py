@@ -56,6 +56,15 @@ def profile_motif(mots):
     return profile
 
 
+def profile_motif_pseudo(mots):
+    rows = len(mots)
+    profile = count_motif(mots)
+    for k, columns in profile.iteritems():
+        for i in range(len(columns)):
+            profile[k][i] = (profile[k][i] + 1) / rows
+    return profile
+
+
 def consensus(profile):
     columns = profile.values()[0]
     cons = ""
@@ -149,6 +158,24 @@ def greedy_motif_search(dna, k):
             best_motif = (motif, m_score)
     return best_motif[0]
 
+
+def greedy_motif_search_pseudo(dna, k):
+    t = len(dna)
+    best_motif = ([], t * k)
+    for seq in dna:
+        best_motif[0].append(seq[0:k])
+    for i in range(len(dna[0]) - k):
+        motif = [dna[0][i:i + k]]
+        for seq in dna[1:]:
+            profile = profile_motif_pseudo(motif)
+            kmer = profile_most_probable(seq, k, profile)
+            motif.append(kmer)
+        # m_score = score_motif(motif)
+        m_score = score_real_motif(motif, consensus(profile_motif(motif)))
+        if m_score < best_motif[1]:
+            best_motif = (motif, m_score)
+    return best_motif[0]
+
 # motif_mx = [l.replace(" ", "") for l in get_file("/data/motif_matrix.txt").read().splitlines()]
 # pmap = profile_motif(motif_mx)
 #
@@ -164,6 +191,6 @@ def greedy_motif_search(dna, k):
 # GCGAGG
 
 dnas = get_file("/data/dna_test.txt").read().splitlines()
-print ' \n'.join(greedy_motif_search(dnas, 12))
+print ' \n'.join(greedy_motif_search_pseudo(dnas, 12))
 # result = ['AGTGGGTATCTC', 'TAAAAAGGTATA', 'AACCACGAGTAC', 'TGTCATGTGCGG', 'AACCTAAACCCT', 'AGTCGTTATCCC', 'AGTAATATGTAC', 'AGTGGTTATCAC', 'AGTGGTTATCCC', 'AGTGGCTATCGC', 'AGTGGATATCCC', 'AGTGAGAAGCAA', 'AGTGACTAGACA', 'TAAGACTAGTTA', 'TATGAAGGGTGA', 'AGTCGGGATAAC', 'AGTGGGTATCTC', 'AGCGGTTAGTCA', 'AGTGAAATTCCT', 'TGTGGATGGCTT', 'TGTAGGTATCAC', 'TGCAGATATCCA', 'TGTGGTTATCAC', 'TGTCATTATTCA', 'TGCGTAGATCAA']
 # expected = "AGTGGGTATCTC TAAAAAGGTATA AACCACGAGTAC TGTCATGTGCGG AACCTAAACCCT AGTCGTTATCCC AGTAATATGTAC AGTGGTTATCAC AGTGGTTATCCC AGTGGCTATCGC AGTGGATATCCC AGTGAGAAGCAA AGTGACTAGACA TAAGACTAGTTA TATGAAGGGTGA AGTCGGGATAAC AGTGGGTATCTC AGCGGTTAGTCA AGTGAAATTCCT TGTGGATGGCTT TGTAGGTATCAC TGCAGATATCCA TGTGGTTATCAC TGTCATTATTCA TGCGTAGATCAA".split(" ")
