@@ -7,6 +7,8 @@ from translation import get_file
 from math import log
 from origin import hamming_d
 from origin import arrange_repeated_dna
+from random import randint
+from random import seed
 
 
 def motif_enumeration(dna, k, d):
@@ -132,13 +134,21 @@ def pr_profile(seq, profile):
 
 
 def profile_most_probable(seq, k, profile):
-    most = (seq[0:k],0)
-    for i in range(len(seq) - k):
+    most = ("",0)
+    for i in range((len(seq) - k) + 1):
         motif = seq[i:i + k]
         pr = pr_profile(motif, profile)
         if pr > most[1]:
             most = (motif, pr)
     return most[0]
+
+
+def motifs(profile, dna):
+    ms = []
+    k = len(profile["A"])
+    for seq in dna:
+        ms.append(profile_most_probable(seq, k, profile))
+    return ms
 
 
 def greedy_motif_search(dna, k):
@@ -152,7 +162,6 @@ def greedy_motif_search(dna, k):
             profile = profile_motif(motif)
             kmer = profile_most_probable(seq, k, profile)
             motif.append(kmer)
-        # m_score = score_motif(motif)
         m_score = score_real_motif(motif, consensus(profile_motif(motif)))
         if m_score < best_motif[1]:
             best_motif = (motif, m_score)
@@ -170,27 +179,52 @@ def greedy_motif_search_pseudo(dna, k):
             profile = profile_motif_pseudo(motif)
             kmer = profile_most_probable(seq, k, profile)
             motif.append(kmer)
-        # m_score = score_motif(motif)
-        m_score = score_real_motif(motif, consensus(profile_motif(motif)))
+        m_score = score_real_motif(motif, consensus(profile_motif_pseudo(motif)))
         if m_score < best_motif[1]:
             best_motif = (motif, m_score)
     return best_motif[0]
 
-# motif_mx = [l.replace(" ", "") for l in get_file("/data/motif_matrix.txt").read().splitlines()]
-# pmap = profile_motif(motif_mx)
-#
-# for k, v in pmap.iteritems():
-#     print k, ": ", v
-#
-# print pr_profile("TCGTGGATTTCC", pmap)
 
-# pcolumns = [[float(x) for x in l.split(" ")] for l in get_file("/data/p_matrix_test.txt").read().splitlines()]
-# test_p = {"A":pcolumns[0], "C":pcolumns[1], "G":pcolumns[2], "T":pcolumns[3]}
-# print profile_most_probable("TCGATCCGAGCGCCATATGCTATAAGTCGCTAACGTTTAGATAGCCCGCTGCGAATCAACGTTAAGATATTCATACCTGGTATACTCCGGAGTAGGTTGTGTTAGCACCCTTTTGAGCGACGTCACGTGCGAGTAGGGCTGGGGACCGTAAACCAGGCTGTCTCATTGACACAGCCAATAGTAATTAGGCCTTCGAGACTATCTCCGTTTTCATGTGCTCCCAACGCATTAGTCTCCATCAGACGATGCTTCCGGTTGTAGGCCCTGAACCCAGGTTCGCCCCATACGACAATGCGTTCTCCCGTCCTTTTTCCCAAGTTTGATCTCAGCCGCTCGGCTTACGCGTAACAAGTACACGACATTCCATCACCGCCAAGTGAAGAACGCATTTATTCTCTCCACGTAGAACCAATATTCTGCGATCTAACGACAAAACGCACAAGTTCGACGCCAGTCGGCCATACTAGTCGAATCGTCCTCTTCAAAGTGACATTTTCGACCGCAAATTTCGTGCCCCTGCAGCCTTACAAGATCCGTATTCCGATCTTATCTGTGGCGGCCATGGGGTTCCCACGTCTCCGCGTAACATGTCCAAATTCAGCCTACATTTGGCTAGGGTATGGGATCATGGGTTGTCTAAATTGTGGATAGCAAACCAAGTGTATGAAACGTTATAGACACGTGCCGCATACACCGAGATGACATGCAGCTCGAACGGCCATGCTTACGGGGCGGTGGAAGCTTCGAATCCGCACGCCGACCCGTGCTGCGAATTGTACCAAAGAGGTGTGACCCGCACCTAATGGGTTACGGACTCCAGCTACACTCTCATGTGGGTGCCAGGCGGGCAGTTCTCGGCGGCTCCAGATTACAGCAGGAATCGGACGCATTGAAGACTTTACCGCGTTGCCCATCAACGAGTGCCCCTGATGTTACCAGCTAAAAGCACAGGAATCTTTGCCGTCCGTGGTCGTAGTAATACGCCATCCGGCCACCAAAG", 15, test_p)
-# print median_string(6, "ACGAGGGATAGTAATGCCTTGACGATGATATAGGAAGCGCGT AGACATATCATCCTCAGGTCCTAACAATAGGCGAGGTATGCA TCGAGGTACGGGTACACAGCTTGGATGCGGTGGGATGAAGGA CCGAGGGTCATTGCTGCGAACGTTTGACGCGTCTCTGTTCCT TGGATGAAGAATTATGAGATTCGACGTCGGGCGAGGAGTTAT TAGCTGAGGAACTTGACGTCCAGCTCGAGGCGTGGGCCCTTG GGGATCACGAGGGCGGCAAACAGCAAAAATCTTCCGATTACA TGACTCACATGTTCTCGCCTTTTATCAAAGCCGAGGTTCCTT GCGAGGACCAAAGAGCTGGCCGTTCGGTCTGGTTCGTCTATA CGAAGAATAGTGAAAATATTTTGTGCGAGGGTCCGGTTAGAG".split(" "))
-# GCGAGG
+def randomized_motif_search(dna, k):
+    random_motifs = []
+    for seq in dna:
+        si = randint(1,len(dna[0]) - k)
+        random_motifs.append(seq[si:si + k])
+    best_motif = (random_motifs, score_real_motif(random_motifs, consensus(profile_motif_pseudo(random_motifs))))
+    while True:
+        prof = profile_motif_pseudo(random_motifs)
+        random_motifs = motifs(prof, dna)
+        cons = consensus(prof)
+        sc = score_real_motif(random_motifs, cons)
+        if sc < best_motif[1]:
+            best_motif = (random_motifs, sc)
+        else:
+            return best_motif
 
-dnas = get_file("/data/dna_test.txt").read().splitlines()
-print ' \n'.join(greedy_motif_search_pseudo(dnas, 12))
-# result = ['AGTGGGTATCTC', 'TAAAAAGGTATA', 'AACCACGAGTAC', 'TGTCATGTGCGG', 'AACCTAAACCCT', 'AGTCGTTATCCC', 'AGTAATATGTAC', 'AGTGGTTATCAC', 'AGTGGTTATCCC', 'AGTGGCTATCGC', 'AGTGGATATCCC', 'AGTGAGAAGCAA', 'AGTGACTAGACA', 'TAAGACTAGTTA', 'TATGAAGGGTGA', 'AGTCGGGATAAC', 'AGTGGGTATCTC', 'AGCGGTTAGTCA', 'AGTGAAATTCCT', 'TGTGGATGGCTT', 'TGTAGGTATCAC', 'TGCAGATATCCA', 'TGTGGTTATCAC', 'TGTCATTATTCA', 'TGCGTAGATCAA']
-# expected = "AGTGGGTATCTC TAAAAAGGTATA AACCACGAGTAC TGTCATGTGCGG AACCTAAACCCT AGTCGTTATCCC AGTAATATGTAC AGTGGTTATCAC AGTGGTTATCCC AGTGGCTATCGC AGTGGATATCCC AGTGAGAAGCAA AGTGACTAGACA TAAGACTAGTTA TATGAAGGGTGA AGTCGGGATAAC AGTGGGTATCTC AGCGGTTAGTCA AGTGAAATTCCT TGTGGATGGCTT TGTAGGTATCAC TGCAGATATCCA TGTGGTTATCAC TGTCATTATTCA TGCGTAGATCAA".split(" ")
+
+def randomized_motif_search_times(k, t, dna, n):
+    best = ([], t * k)
+    for i in range(n):
+        n_best = randomized_motif_search(dna, k)
+        if n_best[1] <= best[1]:
+            best = (n_best[0], n_best[1])
+    return best
+
+
+# dnas = get_file("/data/dna_test_pseudo.txt").read().splitlines()
+# print ' \n'.join(greedy_motif_search_pseudo(dnas, 12))
+
+# dnas = "CGCCCCTCTCGGGGGTGTTCAGTAAACGGCCA GGGCGAGGTATGTGTAAGTGCCAAGGTGCCAG TAGTACCGAGACCGAAAGAAGTATACAGGCGT TAGATCAAGTTTCAGGTGCACGTCGGTGAACC AATCCACCAGCTCCACGTGCAATGTTGGCCTA".split(" ")
+# result = randomized_motif_search_times(8, 5, dnas, 1000)
+
+dnas = get_file("/data/dna_test_random.txt").read().splitlines()
+result = randomized_motif_search_times(15, 20, dnas, 1000)
+
+print ' \n'.join(result[0])
+print result[1]
+
+
+# teste = "CATGGGGAAAACTGA CCTCTCGATCACCGA CCTATAGATCACCGA CCGATTGATCACCGA CCTTGTGCAGACCGA CCTTGCCTTCACCGA CCTTGTTGCCACCGA ACTTGTGATCACCTT CCTTGTGATCAATTA CCTTGTGATCTGTGA CCTTGTGATCACTCC AACTGTGATCACCGA CCTTAGTATCACCGA CCTTGTGAAATCCGA CCTTGTCGCCACCGA TGTTGTGATCACCGC CACCGTGATCACCGA CCTTGGTTTCACCGA CCTTTGCATCACCGA CCTTGTGATTTACGA"
+# exp =   "CATGGGGAAAACTGA CCTCTCGATCACCGA CCTATAGATCACCGA CCGATTGATCACCGA CCTTGTGCAGACCGA CCTTGCCTTCACCGA CCTTGTTGCCACCGA ACTTGTGATCACCTT CCTTGTGATCAATTA CCTTGTGATCTGTGA CCTTGTGATCACTCC AACTGTGATCACCGA CCTTAGTATCACCGA CCTTGTGAAATCCGA CCTTGTCGCCACCGA TGTTGTGATCACCGC CACCGTGATCACCGA CCTTGGTTTCACCGA CCTTTGCATCACCGA CCTTGTGATTTACGA"
+#
+# print teste == exp
