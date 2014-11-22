@@ -203,6 +203,7 @@ def randomized_motif_search(dna, k):
 
 
 def randomized_motif_search_times(k, t, dna, n):
+    seed(8)
     best = ([], t * k)
     for i in range(n):
         n_best = randomized_motif_search(dna, k)
