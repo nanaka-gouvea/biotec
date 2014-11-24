@@ -9,6 +9,8 @@ from origin import hamming_d
 from origin import arrange_repeated_dna
 from random import randint
 from random import seed
+from random import randrange
+from random import uniform
 
 
 def motif_enumeration(dna, k, d):
@@ -188,6 +190,7 @@ def greedy_motif_search_pseudo(dna, k):
 def randomized_motif_search(dna, k):
     random_motifs = []
     for seq in dna:
+        # si = randrange(len(dna[0]) - k + 1)
         si = randint(1,len(dna[0]) - k)
         random_motifs.append(seq[si:si + k])
     best_motif = (random_motifs, score_real_motif(random_motifs, consensus(profile_motif_pseudo(random_motifs))))
@@ -212,17 +215,52 @@ def randomized_motif_search_times(k, t, dna, n):
     return best
 
 
+def random_bias(sides, bias_list):
+    assert len(bias_list) == sides
+    number = uniform(0, sum(bias_list))
+    current = 0
+    for i, bias in enumerate(bias_list):
+        current += bias
+        if number <= current:
+            return i + 1
+
+
+def gibs_sampling(dna, k, n):
+    t = len(dna)
+    random_motifs = []
+    seq_len = len(dna[0])
+    for seq in dna:
+        si = randint(1, seq_len - k)
+        random_motifs.append(seq[si:si + k])
+    best_motif = (random_motifs, score_real_motif(random_motifs, consensus(profile_motif_pseudo(random_motifs))))
+    for j in range(len(n)):
+        i = randint(0, t - 1)
+        random_motifs.pop(i)
+        prof = profile_motif_pseudo(random_motifs)
+        cons = consensus(prof)
+        random_motifs = motifs(prof, dna)
+        ith_seq = dna[i]
+        probs = [pr_profile(ith_seq[s:s + k], prof) for s in range(0, seq_len, k)]
+        ex = random_bias(t, probs)
+        random_motifs.append(ith_seq[ex:ex + k])
+        sc = score_real_motif(random_motifs, cons)
+        if sc < best_motif[1]:
+            best_motif = (random_motifs, sc)
+        else:
+            return best_motif
+
+
 # dnas = get_file("/data/dna_test_pseudo.txt").read().splitlines()
 # print ' \n'.join(greedy_motif_search_pseudo(dnas, 12))
 
 # dnas = "CGCCCCTCTCGGGGGTGTTCAGTAAACGGCCA GGGCGAGGTATGTGTAAGTGCCAAGGTGCCAG TAGTACCGAGACCGAAAGAAGTATACAGGCGT TAGATCAAGTTTCAGGTGCACGTCGGTGAACC AATCCACCAGCTCCACGTGCAATGTTGGCCTA".split(" ")
 # result = randomized_motif_search_times(8, 5, dnas, 1000)
 
-dnas = get_file("/data/dna_test_random.txt").read().splitlines()
-result = randomized_motif_search_times(15, 20, dnas, 1000)
+# dnas = get_file("/data/dna_test_random.txt").read().splitlines()
+# result = randomized_motif_search_times(15, 20, dnas, 1000)
 
-print ' \n'.join(result[0])
-print result[1]
+# print ' \n'.join(result[0])
+# print result[1]
 
 
 # teste = "CATGGGGAAAACTGA CCTCTCGATCACCGA CCTATAGATCACCGA CCGATTGATCACCGA CCTTGTGCAGACCGA CCTTGCCTTCACCGA CCTTGTTGCCACCGA ACTTGTGATCACCTT CCTTGTGATCAATTA CCTTGTGATCTGTGA CCTTGTGATCACTCC AACTGTGATCACCGA CCTTAGTATCACCGA CCTTGTGAAATCCGA CCTTGTCGCCACCGA TGTTGTGATCACCGC CACCGTGATCACCGA CCTTGGTTTCACCGA CCTTTGCATCACCGA CCTTGTGATTTACGA"
