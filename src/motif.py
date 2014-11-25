@@ -187,11 +187,20 @@ def greedy_motif_search_pseudo(dna, k):
     return best_motif[0]
 
 
+def random_bias(bias_list):
+    number = uniform(0, sum(bias_list))
+    current = 0
+    for i, bias in enumerate(bias_list):
+        current += bias
+        if number <= current:
+            return i
+
+
 def randomized_motif_search(dna, k):
     random_motifs = []
     for seq in dna:
-        # si = randrange(len(dna[0]) - k + 1)
-        si = randint(1,len(dna[0]) - k)
+        # si = randint(1,len(dna[0]) - k)
+        si = random_bias([0 for _ in dna[0]])
         random_motifs.append(seq[si:si + k])
     best_motif = (random_motifs, score_real_motif(random_motifs, consensus(profile_motif_pseudo(random_motifs))))
     while True:
@@ -215,55 +224,48 @@ def randomized_motif_search_times(k, t, dna, n):
     return best
 
 
-def random_bias(sides, bias_list):
-    assert len(bias_list) == sides
-    number = uniform(0, sum(bias_list))
-    current = 0
-    for i, bias in enumerate(bias_list):
-        current += bias
-        if number <= current:
-            return i + 1
-
-
-def gibs_sampling(dna, k, n):
-    t = len(dna)
+def gibs_sampling(k, t, n, dna):
+    # seed(375)
     random_motifs = []
     seq_len = len(dna[0])
     for seq in dna:
-        si = randint(1, seq_len - k)
+        # si = randrange(seq_len - k + 1)
+        si = random_bias([0 for _ in xrange(seq_len)])
         random_motifs.append(seq[si:si + k])
     best_motif = (random_motifs, score_real_motif(random_motifs, consensus(profile_motif_pseudo(random_motifs))))
-    for j in range(len(n)):
-        i = randint(0, t - 1)
+    for _ in xrange(n):
+        i = randrange(t)
+        # i = random_bias([0 for _ in xrange(t)])
         random_motifs.pop(i)
         prof = profile_motif_pseudo(random_motifs)
         cons = consensus(prof)
         random_motifs = motifs(prof, dna)
         ith_seq = dna[i]
-        probs = [pr_profile(ith_seq[s:s + k], prof) for s in range(0, seq_len, k)]
-        ex = random_bias(t, probs)
-        random_motifs.append(ith_seq[ex:ex + k])
+        probs = [pr_profile(ith_seq[s:s + k], prof) for s in range(seq_len - k + 1)]
+        ex = random_bias(probs)
+        motif_i = ith_seq[ex:ex + k]
+        random_motifs.insert(i, motif_i)
         sc = score_real_motif(random_motifs, cons)
         if sc < best_motif[1]:
             best_motif = (random_motifs, sc)
-        else:
-            return best_motif
+    return best_motif
 
 
-# dnas = get_file("/data/dna_test_pseudo.txt").read().splitlines()
-# print ' \n'.join(greedy_motif_search_pseudo(dnas, 12))
+def gibs_sampling_times(k, t, n, m, dna):
+    best = ([], t * k)
+    for i in xrange(m):
+        n_best = gibs_sampling(k, t, n, dna)
+        if n_best[1] <= best[1]:
+            best = (n_best[0], n_best[1])
+    return best
 
 # dnas = "CGCCCCTCTCGGGGGTGTTCAGTAAACGGCCA GGGCGAGGTATGTGTAAGTGCCAAGGTGCCAG TAGTACCGAGACCGAAAGAAGTATACAGGCGT TAGATCAAGTTTCAGGTGCACGTCGGTGAACC AATCCACCAGCTCCACGTGCAATGTTGGCCTA".split(" ")
-# result = randomized_motif_search_times(8, 5, dnas, 1000)
+# print ' \n'.join(gibs_sampling_times(8, 5, 100, 20, dnas)[0])
 
-# dnas = get_file("/data/dna_test_random.txt").read().splitlines()
-# result = randomized_motif_search_times(15, 20, dnas, 1000)
+# expected = "TCTCGGGG CCAAGGTG TACAGGCG TTCAGGTG TCCACGTG".split(" ")
+# for r in range(1000):
+#     seed(r)
+#     if set(gibs_sampling(8, 5, 100, dnas)[0]) == set(expected):
+#         print r
+#         break
 
-# print ' \n'.join(result[0])
-# print result[1]
-
-
-# teste = "CATGGGGAAAACTGA CCTCTCGATCACCGA CCTATAGATCACCGA CCGATTGATCACCGA CCTTGTGCAGACCGA CCTTGCCTTCACCGA CCTTGTTGCCACCGA ACTTGTGATCACCTT CCTTGTGATCAATTA CCTTGTGATCTGTGA CCTTGTGATCACTCC AACTGTGATCACCGA CCTTAGTATCACCGA CCTTGTGAAATCCGA CCTTGTCGCCACCGA TGTTGTGATCACCGC CACCGTGATCACCGA CCTTGGTTTCACCGA CCTTTGCATCACCGA CCTTGTGATTTACGA"
-# exp =   "CATGGGGAAAACTGA CCTCTCGATCACCGA CCTATAGATCACCGA CCGATTGATCACCGA CCTTGTGCAGACCGA CCTTGCCTTCACCGA CCTTGTTGCCACCGA ACTTGTGATCACCTT CCTTGTGATCAATTA CCTTGTGATCTGTGA CCTTGTGATCACTCC AACTGTGATCACCGA CCTTAGTATCACCGA CCTTGTGAAATCCGA CCTTGTCGCCACCGA TGTTGTGATCACCGC CACCGTGATCACCGA CCTTGGTTTCACCGA CCTTTGCATCACCGA CCTTGTGATTTACGA"
-#
-# print teste == exp
