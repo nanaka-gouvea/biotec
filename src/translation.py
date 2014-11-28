@@ -9,6 +9,10 @@ def get_file(filepath):
     return open(os.path.dirname(__file__) + filepath)
 
 
+def get_file_w(filepath):
+    return open(os.path.dirname(__file__) + filepath, "w")
+
+
 def t_map():
     return {line[0:3]:line[4:] if len(line) > 3 else " " for line in get_file("/resources/genetic_code.txt").read().splitlines()}
 

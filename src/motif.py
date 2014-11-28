@@ -11,6 +11,8 @@ from random import randint
 from random import seed
 from random import randrange
 from random import uniform
+from random import SystemRandom
+from tools.true_random import getnum
 
 
 def motif_enumeration(dna, k, d):
@@ -81,15 +83,23 @@ def consensus(profile):
     return cons
 
 
+def entropy_column(column):
+    e = 0.0
+    for p in column:
+        if p > 0.0:
+            e += (p * log(p, 2))
+    return abs(e)
+
+
 def entropy_motif(profile):
     total_entropy = []
     for column in range(len(profile.values()[0])):
-        entropy = 0.0
+        e = 0.0
         for k, v in profile.iteritems():
             p = v[column]
             if p > 0.0:
-                entropy += (p * log(p, 2))
-        total_entropy.append(abs(entropy))
+                e += (p * log(p, 2))
+        total_entropy.append(abs(e))
     return sum(total_entropy)
 
 
@@ -116,6 +126,20 @@ def median_string(k, dna):
         if nd < min_d:
             min_d = nd
             median = p
+    return median
+
+
+def median_string_many(k, dna):
+    min_d = k * len(dna)
+    median = []
+    possible = arrange_repeated_dna(k)
+    for p in possible:
+        nd = distance(p, dna)
+        if nd < min_d:
+            min_d = nd
+            median = [p]
+        elif nd == min_d:
+            median.append(p)
     return median
 
 
@@ -199,8 +223,7 @@ def random_bias(bias_list):
 def randomized_motif_search(dna, k):
     random_motifs = []
     for seq in dna:
-        # si = randint(1,len(dna[0]) - k)
-        si = random_bias([0 for _ in dna[0]])
+        si = randint(1,len(dna[0]) - k)
         random_motifs.append(seq[si:si + k])
     best_motif = (random_motifs, score_real_motif(random_motifs, consensus(profile_motif_pseudo(random_motifs))))
     while True:
@@ -225,27 +248,22 @@ def randomized_motif_search_times(k, t, dna, n):
 
 
 def gibs_sampling(k, t, n, dna):
-    # seed(375)
     random_motifs = []
     seq_len = len(dna[0])
     for seq in dna:
-        # si = randrange(seq_len - k + 1)
-        si = random_bias([0 for _ in xrange(seq_len)])
+        si = randrange(seq_len - k + 1)
         random_motifs.append(seq[si:si + k])
     best_motif = (random_motifs, score_real_motif(random_motifs, consensus(profile_motif_pseudo(random_motifs))))
     for _ in xrange(n):
         i = randrange(t)
-        # i = random_bias([0 for _ in xrange(t)])
         random_motifs.pop(i)
         prof = profile_motif_pseudo(random_motifs)
-        cons = consensus(prof)
-        random_motifs = motifs(prof, dna)
         ith_seq = dna[i]
         probs = [pr_profile(ith_seq[s:s + k], prof) for s in range(seq_len - k + 1)]
         ex = random_bias(probs)
         motif_i = ith_seq[ex:ex + k]
         random_motifs.insert(i, motif_i)
-        sc = score_real_motif(random_motifs, cons)
+        sc = score_real_motif(random_motifs, consensus(profile_motif_pseudo(random_motifs)))
         if sc < best_motif[1]:
             best_motif = (random_motifs, sc)
     return best_motif
@@ -254,18 +272,22 @@ def gibs_sampling(k, t, n, dna):
 def gibs_sampling_times(k, t, n, m, dna):
     best = ([], t * k)
     for i in xrange(m):
+        # seed(i)
         n_best = gibs_sampling(k, t, n, dna)
-        if n_best[1] <= best[1]:
+        if n_best[1] < best[1]:
             best = (n_best[0], n_best[1])
     return best
 
+# seed(31)
 # dnas = "CGCCCCTCTCGGGGGTGTTCAGTAAACGGCCA GGGCGAGGTATGTGTAAGTGCCAAGGTGCCAG TAGTACCGAGACCGAAAGAAGTATACAGGCGT TAGATCAAGTTTCAGGTGCACGTCGGTGAACC AATCCACCAGCTCCACGTGCAATGTTGGCCTA".split(" ")
 # print ' \n'.join(gibs_sampling_times(8, 5, 100, 20, dnas)[0])
 
 # expected = "TCTCGGGG CCAAGGTG TACAGGCG TTCAGGTG TCCACGTG".split(" ")
 # for r in range(1000):
 #     seed(r)
-#     if set(gibs_sampling(8, 5, 100, dnas)[0]) == set(expected):
+#     if set(gibs_sampling_times(8, 5, 100, 20, dnas)[0]) == set(expected):
 #         print r
 #         break
+# dnas = get_file("/data/gibs_test.txt").read().splitlines()
+# print ' \n'.join(gibs_sampling_times(15, 20, 5000, 20, dnas)[0])
 
