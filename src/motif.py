@@ -263,6 +263,7 @@ def gibs_sampling(k, t, n, dna):
         ex = random_bias(probs)
         motif_i = ith_seq[ex:ex + k]
         random_motifs.insert(i, motif_i)
+        #TODO usar dna em vez de motif para encontrar o consensus?
         sc = score_real_motif(random_motifs, consensus(profile_motif_pseudo(random_motifs)))
         if sc < best_motif[1]:
             best_motif = (random_motifs, sc)
