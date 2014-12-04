@@ -1,7 +1,7 @@
 __author__ = 'natalia'
 from translation import get_file
 from translation import get_file_w
-
+from collections import defaultdict
 
 def composition(k, text):
     comp = []
@@ -40,6 +40,29 @@ def de_bruijn(k, text):
     return graph
 
 
+def de_bruijn_patterns(peaces):
+    peaces = sorted(peaces)
+    k = len(peaces[0])
+    unordered_edges = []
+    edge_counter = defaultdict(int)
+    for p in peaces:
+        edge = (p[:k - 1], p[1:])
+        unordered_edges.append(edge)
+        edge_counter[edge] += 1
+    graph = {}
+    for e in unordered_edges:
+        if edge_counter[e] > 0:
+            graph.setdefault(e[0], []).append(e[1])
+            edge_counter[e] -= 1
+        aux = unordered_edges[:]
+        aux.remove(e)
+        for next_e in aux:
+            if e[1] == next_e[0] and edge_counter[next_e] > 0:
+                graph.setdefault(e[1], []).append(next_e[1])
+                edge_counter[next_e] -= 1
+    return graph
+
+
 def output_graph(graph, filew=None):
     for peace in sorted(graph.keys()):
         endings = graph[peace]
@@ -47,18 +70,18 @@ def output_graph(graph, filew=None):
             if filew is None:
                 print peace, "->", ','.join(endings)
             else:
-                filew.write(''.join([peace, " -> ", ' '.join(endings), "\n"]))
+                filew.write(''.join([peace, " -> ", ','.join(endings), "\n"]))
 
 
-# sample = get_file("/data/overlap_test.txt").read().splitlines()
-# filew = get_file_w("/data/overlap_result.txt")
-# overlapping = overlap_graph(sample)
+sample = get_file("/data/deb_test.txt").read().splitlines()
+# output_graph(de_bruijn_patterns(sample))
+fileo = get_file_w("/data/deb_result.txt")
+output_graph(de_bruijn_patterns(sample), fileo)
 
 
-
-
-
-
+# expected = get_file("/data/deb_test.txt").read().splitlines()[1123:]
+# result = get_file("/data/deb_result.txt").read().splitlines()
+# print expected == result
 
 
 
