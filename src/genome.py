@@ -1,7 +1,11 @@
+from random import choice
+
 __author__ = 'natalia'
 from translation import get_file
 from translation import get_file_w
 from collections import defaultdict
+from copy import deepcopy
+
 
 def composition(k, text):
     comp = []
@@ -73,20 +77,61 @@ def output_graph(graph, filew=None):
                 filew.write(''.join([peace, " -> ", ','.join(endings), "\n"]))
 
 
-sample = get_file("/data/deb_test.txt").read().splitlines()
-# output_graph(de_bruijn_patterns(sample))
-fileo = get_file_w("/data/deb_result.txt")
-output_graph(de_bruijn_patterns(sample), fileo)
+def remove_step(new_step, walking_path):
+    for k, v in walking_path.iteritems():
+        if new_step in v:
+            walking_path[k].remove(new_step)
 
 
-# expected = get_file("/data/deb_test.txt").read().splitlines()[1123:]
-# result = get_file("/data/deb_result.txt").read().splitlines()
-# print expected == result
+def eulerian_cycle(graph):
+    last_cycle = []
+    cycle = []
+    nodes = graph.keys()
+    walking_path = deepcopy(graph)
+    l_edges = len(sum(graph.values(), []))
 
+    # while len(sum(walking_path.values(), [])) > 0:
+    while len(cycle) < l_edges:
+        cycle = []
+        if len(last_cycle) == 0:
+            cycle.append(choice(nodes))
+        else:
+            # last_path_cycle = last_cycle[:-1]
+            unexplored = 0
+            for i in range(len(last_cycle)):
+                if len(walking_path[last_cycle[i]]) > 0:
+                    unexplored = i
+                    break
+            #transverse
+            cycle = last_cycle[unexplored:] + last_cycle[1:unexplored + 1]
+        step = cycle[-1]
+        while len(walking_path[step]) > 0:
+            new_step = choice(walking_path[step])
+            cycle.append(new_step)
+            # o novo no nao podera ser visitado novamente nesse cycle
+            walking_path[step].remove(new_step)
+            step = new_step
+        last_cycle = cycle[:]
+    return cycle
 
+sample = get_file("/data/euler_in.txt").read().splitlines()
+smap = {}
+for line in sample:
+    parts = line.split(" -> ")
+    smap[parts[0]] = parts[1].split(",")
+# print smap
+# print "->".join(eulerian_cycle(smap))
+fileo = get_file_w("/data/euler_out.txt")
+fileo.write("->".join(eulerian_cycle(smap)))
+# output_graph(de_bruijn_patterns(sample), fileo)
 
+# print len(sum(smap.values(), []))
+# print len(get_file("/data/euler_out.txt").read().splitlines()[0].split("->"))
 
-
+# i = 2
+# for _ in range(len(teste)):
+#     print teste[i]
+#     i = (i + 1) % len(teste)
 
 
 
