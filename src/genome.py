@@ -23,7 +23,7 @@ def string_spelled(peaces):
 
 
 def overlap_graph(peaces):
-    dir_g = dict.fromkeys(peaces,[])
+    dir_g = dict.fromkeys(peaces, [])
     for suffix in peaces:
         prefixes = []
         for prefix in peaces:
@@ -38,7 +38,7 @@ def de_bruijn(k, text):
     nodes = [peaces[0][:k - 1]]
     for p in peaces:
         nodes.append(p[1:])
-    graph = {n:[] for n in set(nodes)}
+    graph = {n: [] for n in set(nodes)}
     for i in range(len(nodes) - 1):
         graph[nodes[i]].append(nodes[i + 1])
     return graph
@@ -89,8 +89,6 @@ def eulerian_cycle(graph):
     nodes = graph.keys()
     walking_path = deepcopy(graph)
     l_edges = len(sum(graph.values(), []))
-
-    # while len(sum(walking_path.values(), [])) > 0:
     while len(cycle) < l_edges:
         cycle = []
         if len(last_cycle) == 0:
@@ -102,7 +100,7 @@ def eulerian_cycle(graph):
                 if len(walking_path[last_cycle[i]]) > 0:
                     unexplored = i
                     break
-            #transverse
+            # transverse
             cycle = last_cycle[unexplored:] + last_cycle[1:unexplored + 1]
         step = cycle[-1]
         while len(walking_path[step]) > 0:
@@ -114,28 +112,68 @@ def eulerian_cycle(graph):
         last_cycle = cycle[:]
     return cycle
 
-sample = get_file("/data/euler_in.txt").read().splitlines()
-smap = {}
-for line in sample:
-    parts = line.split(" -> ")
-    smap[parts[0]] = parts[1].split(",")
+
+def eulerian_path(graph):
+    # balance graph
+    total_ins = sum(graph.values(), [])
+    miss_out = None
+    miss_in = None
+    nodes = set(sum(graph.values(), graph.keys()))
+    for n in nodes:
+        try:
+            v = graph[n]
+            out = len(v)
+        except KeyError:
+            out = 0
+        ins = total_ins.count(n)
+        if out < ins:
+            miss_out = n
+        elif out > ins:
+            miss_in = n
+    if miss_in is not None and miss_out is not None:
+        try:
+            graph[miss_out].append(miss_in)
+        except KeyError:
+            graph[miss_out] = [miss_in]
+
+        path = eulerian_cycle(graph)
+        #split at added edge
+        spliti = 0
+        for i in range(len(path) - 1):
+            if path[i] == miss_out and path[i + 1] == miss_in:
+                spliti = i + 1
+        path = path[spliti:] + path[1:spliti]
+        return path
+    else:
+        return eulerian_cycle(graph)[:-1]
+
+
+# sample = get_file("/data/euler_in.txt").read().splitlines()
+# smap = {}
+# for line in sample:
+#     parts = line.split(" -> ")
+#     smap[parts[0]] = parts[1].split(",")
 # print smap
-# print "->".join(eulerian_cycle(smap))
-fileo = get_file_w("/data/euler_out.txt")
-fileo.write("->".join(eulerian_cycle(smap)))
-# output_graph(de_bruijn_patterns(sample), fileo)
+# print "->".join(eulerian_path(smap))
+# fileo = get_file_w("/data/euler_out.txt")
+# fileo.write("->".join(eulerian_path(smap)))
 
-# print len(sum(smap.values(), []))
-# print len(get_file("/data/euler_out.txt").read().splitlines()[0].split("->"))
-
-# i = 2
-# for _ in range(len(teste)):
-#     print teste[i]
-#     i = (i + 1) % len(teste)
+sample = "CTTA ACCA TACC GGCT GCTT TTAC".split(" ")
+dbr = de_bruijn_patterns(sample)
+print dbr
+eu = eulerian_path(dbr)
+print eu
+print eu[0] + "".join(eu[1:])
 
 
 
-#TODO acertar isso ae
+
+
+
+
+
+
+# TODO acertar isso ae
 def kuniversal_binary(k):
     i = 0
     ku = "000"
