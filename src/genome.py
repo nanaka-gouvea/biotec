@@ -14,19 +14,19 @@ def composition(k, text):
     return sorted(comp)
 
 
-def string_spelled(peaces):
-    k = len(peaces[0])
-    genome = peaces[0][:k - 1]
-    for p in peaces:
+def string_spelled(pieces):
+    k = len(pieces[0])
+    genome = pieces[0][:k - 1]
+    for p in pieces:
         genome += p[-1]
     return genome
 
 
-def overlap_graph(peaces):
-    dir_g = dict.fromkeys(peaces, [])
-    for suffix in peaces:
+def overlap_graph(pieces):
+    dir_g = dict.fromkeys(pieces, [])
+    for suffix in pieces:
         prefixes = []
-        for prefix in peaces:
+        for prefix in pieces:
             if suffix[1:] == prefix[:-1]:
                 prefixes.append(prefix)
         dir_g[suffix] = prefixes
@@ -34,9 +34,9 @@ def overlap_graph(peaces):
 
 
 def de_bruijn(k, text):
-    peaces = [text[i:i + k] for i in range(len(text) - k + 1)]
-    nodes = [peaces[0][:k - 1]]
-    for p in peaces:
+    pieces = [text[i:i + k] for i in range(len(text) - k + 1)]
+    nodes = [pieces[0][:k - 1]]
+    for p in pieces:
         nodes.append(p[1:])
     graph = {n: [] for n in set(nodes)}
     for i in range(len(nodes) - 1):
@@ -44,12 +44,12 @@ def de_bruijn(k, text):
     return graph
 
 
-def de_bruijn_patterns(peaces):
-    peaces = sorted(peaces)
-    k = len(peaces[0])
+def de_bruijn_patterns(pieces):
+    pieces = sorted(pieces)
+    k = len(pieces[0])
     unordered_edges = []
     edge_counter = defaultdict(int)
-    for p in peaces:
+    for p in pieces:
         edge = (p[:k - 1], p[1:])
         unordered_edges.append(edge)
         edge_counter[edge] += 1
@@ -68,13 +68,13 @@ def de_bruijn_patterns(peaces):
 
 
 def output_graph(graph, filew=None):
-    for peace in sorted(graph.keys()):
-        endings = graph[peace]
+    for piece in sorted(graph.keys()):
+        endings = graph[piece]
         if len(endings) > 0:
             if filew is None:
-                print peace, "->", ','.join(endings)
+                print piece, "->", ','.join(endings)
             else:
-                filew.write(''.join([peace, " -> ", ','.join(endings), "\n"]))
+                filew.write(''.join([piece, " -> ", ','.join(endings), "\n"]))
 
 
 def remove_step(new_step, walking_path):
@@ -89,7 +89,7 @@ def eulerian_cycle(graph):
     nodes = graph.keys()
     walking_path = deepcopy(graph)
     l_edges = len(sum(graph.values(), []))
-    while len(cycle) < l_edges:
+    while len(cycle) <= l_edges:
         cycle = []
         if len(last_cycle) == 0:
             cycle.append(choice(nodes))
@@ -148,42 +148,50 @@ def eulerian_path(graph):
         return eulerian_cycle(graph)[:-1]
 
 
+def reconstruction(reads):
+    k = len(reads[0])
+    dbr = de_bruijn_patterns(reads)
+    eu = eulerian_path(dbr)
+    return eu[0] + "".join([x[k - 2:] for x in eu[1:]])
+
+
+def generate_binary_strings(lenght):
+    max_b = sum([2 ** x for x in range(lenght)])
+    return [bin(x)[2:].zfill(lenght) for x in range(max_b + 1)]
+
+
+def universal_circular_string(k):
+    pieces = generate_binary_strings(k)
+    print pieces
+    dbr = de_bruijn_patterns(pieces)
+    print dbr
+    eu = eulerian_cycle(dbr)
+    print eu
+    return "".join([x[0] for x in eu[:-1]])
+
+
+def universal_string(k):
+    pieces = generate_binary_strings(k)
+    print pieces
+    dbr = de_bruijn_patterns(pieces)
+    print dbr
+    eu = eulerian_path(dbr)
+    print eu
+    return "".join([x[0] for x in eu])
+
+
+def kd_mer_composition(k, d, string):
+    comp = []
+    for i in range(len(string) - (k + d) - (k - 1)):
+        kmer1 = string[i:i + k]
+        kmer2 = string[i + k + d:i + k + d + k]
+        comp.append((kmer1, kmer2))
+    return sorted(comp)
+
+for c in kd_mer_composition(3,2,"TAATGCCATGGGATGTT"):
+    print "(" + c[0] + "|" + c[1] + ")"
+
+
+
+
 # sample = get_file("/data/euler_in.txt").read().splitlines()
-# smap = {}
-# for line in sample:
-#     parts = line.split(" -> ")
-#     smap[parts[0]] = parts[1].split(",")
-# print smap
-# print "->".join(eulerian_path(smap))
-# fileo = get_file_w("/data/euler_out.txt")
-# fileo.write("->".join(eulerian_path(smap)))
-
-sample = "CTTA ACCA TACC GGCT GCTT TTAC".split(" ")
-dbr = de_bruijn_patterns(sample)
-print dbr
-eu = eulerian_path(dbr)
-print eu
-print eu[0] + "".join(eu[1:])
-
-
-
-
-
-
-
-
-
-# TODO acertar isso ae
-def kuniversal_binary(k):
-    i = 0
-    ku = "000"
-    while True:
-        b = bin(i)[2:]
-        lb = len(b)
-        if lb == k and b not in ku:
-            ku += b
-        elif lb > k:
-            break
-        i += 1
-    return ku
-
