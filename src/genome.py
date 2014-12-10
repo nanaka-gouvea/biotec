@@ -188,10 +188,39 @@ def kd_mer_composition(k, d, string):
         comp.append((kmer1, kmer2))
     return sorted(comp)
 
-for c in kd_mer_composition(3,2,"TAATGCCATGGGATGTT"):
-    print "(" + c[0] + "|" + c[1] + ")"
+
+def string_spelled_paired(pieces, d):
+    pairs = [(s[0],s[1]) for s in [p.split("|") for p in pieces]]
+    genome = pairs[0][0]
+    for p in pairs[1:1 + d]:
+        genome += p[0][-1]
+    genome += pairs[0][1]
+    for p in pairs[1:]:
+        genome += p[1][-1]
+    return genome
 
 
-
-
-# sample = get_file("/data/euler_in.txt").read().splitlines()
+def de_bruijn_pairs(pieces):
+    pairs = [(s[0],s[1]) for s in [p.split("|") for p in pieces]]
+    k = len(pairs[0][0])
+    unordered_edges = []
+    edge_counter = defaultdict(int)
+    # edge = ((TA,GC),(AA,CC))) ??
+    for p in pieces:
+        edge = (p[:k - 1], p[1:])
+        unordered_edges.append(edge)
+        edge_counter[edge] += 1
+    graph = {}
+    for e in unordered_edges:
+        if edge_counter[e] > 0:
+            graph.setdefault(e[0], []).append(e[1])
+            edge_counter[e] -= 1
+        aux = unordered_edges[:]
+        aux.remove(e)
+        for next_e in aux:
+            if e[1] == next_e[0] and edge_counter[next_e] > 0:
+                graph.setdefault(e[1], []).append(next_e[1])
+                edge_counter[next_e] -= 1
+    return graph
+# sample = get_file("/data/spell_pair_in.txt").read().splitlines()
+# get_file_w("/data/spell_pair_out.txt").write(string_spelled_paired(sample, 200))
