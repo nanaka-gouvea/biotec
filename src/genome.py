@@ -135,7 +135,7 @@ def eulerian_path(graph):
             graph[miss_out].append(miss_in)
         except KeyError:
             graph[miss_out] = [miss_in]
-
+        #solve cycle, remove artificially balanced edges
         path = eulerian_cycle(graph)
         #split at added edge
         spliti = 0
@@ -191,9 +191,12 @@ def kd_mer_composition(k, d, string):
 
 def string_spelled_paired(pieces, d):
     pairs = [(s[0],s[1]) for s in [p.split("|") for p in pieces]]
+    #comeca com o primeiro prefixo
     genome = pairs[0][0]
-    for p in pairs[1:1 + d]:
+    #a partir do segundo, mais a distancia, adiciona o ultimo nucleotideo de cada prefixo
+    for p in pairs[1:1 + d + 1]:
         genome += p[0][-1]
+    #apos adicionar 'd' nucleotideos, comeca a usar o sufixo
     genome += pairs[0][1]
     for p in pairs[1:]:
         genome += p[1][-1]
@@ -202,12 +205,13 @@ def string_spelled_paired(pieces, d):
 
 def de_bruijn_pairs(pieces):
     pairs = [(s[0],s[1]) for s in [p.split("|") for p in pieces]]
-    k = len(pairs[0][0])
     unordered_edges = []
     edge_counter = defaultdict(int)
-    # edge = ((TA,GC),(AA,CC))) ??
-    for p in pieces:
-        edge = (p[:k - 1], p[1:])
+    # k = 3:
+    # p = (TAA,GCC)
+    # edge = ((TA,GC),(AA,CC)))
+    for p in pairs:
+        edge = ((p[0][:-1], p[1][:-1]), (p[0][1:], p[1][1:]))
         unordered_edges.append(edge)
         edge_counter[edge] += 1
     graph = {}
@@ -222,5 +226,17 @@ def de_bruijn_pairs(pieces):
                 graph.setdefault(e[1], []).append(next_e[1])
                 edge_counter[next_e] -= 1
     return graph
+
+
+def reconstruction_pairs(reads, d):
+    dbr = de_bruijn_pairs(reads)
+    eu = eulerian_path(dbr)
+    return string_spelled_paired([e[0] + "|" + e[1] for e in eu], d)
+
+
 # sample = get_file("/data/spell_pair_in.txt").read().splitlines()
 # get_file_w("/data/spell_pair_out.txt").write(string_spelled_paired(sample, 200))
+
+# sample = "GAGA|TTGA TCGT|GATG CGTG|ATGT TGGT|TGAG GTGA|TGTT GTGG|GTGA TGAG|GTTG GGTC|GAGA GTCG|AGAT".split(" ")
+sample = get_file("/data/read_pair_in.txt").read().splitlines()
+get_file_w("/data/read_pair_out.txt").write(reconstruction_pairs(sample, 200))
