@@ -193,10 +193,10 @@ def string_spelled_paired(pieces, d):
     pairs = [(s[0],s[1]) for s in [p.split("|") for p in pieces]]
     #comeca com o primeiro prefixo
     genome = pairs[0][0]
-    #a partir do segundo, mais a distancia, adiciona o ultimo nucleotideo de cada prefixo
+    #a partir do segundo, adiciona o ultimo nucleotideo de cada prefixo
     for p in pairs[1:1 + d + 1]:
         genome += p[0][-1]
-    #apos adicionar 'd' nucleotideos, comeca a usar o sufixo
+    #apos adicionar 'd' nucleotideos, passa a usar os sufixos
     genome += pairs[0][1]
     for p in pairs[1:]:
         genome += p[1][-1]
