@@ -234,9 +234,49 @@ def reconstruction_pairs(reads, d):
     return string_spelled_paired([e[0] + "|" + e[1] for e in eu], d)
 
 
+def follow_non_branch(graph, path, k, v, paths):
+    while len(v) == 1:
+        # seguir apenas ate a proxima bifurcacao
+        vo = v[0]
+        path.append(vo)
+        # v.remove(vo)
+        graph[k].remove(vo)
+        try:
+            v = graph[vo]
+            k = vo
+        except KeyError:
+            break
+    if len(path) > 1:
+        paths.append(path)
+
+
+def non_branching_paths(graph):
+    paths = []
+    for k in graph.keys():
+        v = graph[k]
+        for node in v:
+            path = [k]
+            follow_non_branch(graph, path, k, [node], paths)
+    return paths
+
 # sample = get_file("/data/spell_pair_in.txt").read().splitlines()
 # get_file_w("/data/spell_pair_out.txt").write(string_spelled_paired(sample, 200))
 
 # sample = "GAGA|TTGA TCGT|GATG CGTG|ATGT TGGT|TGAG GTGA|TGTT GTGG|GTGA TGAG|GTTG GGTC|GAGA GTCG|AGAT".split(" ")
-sample = get_file("/data/read_pair_in.txt").read().splitlines()
-get_file_w("/data/read_pair_out.txt").write(reconstruction_pairs(sample, 200))
+# sample = get_file("/data/read_pair_in.txt").read().splitlines()
+# get_file_w("/data/read_pair_out.txt").write(reconstruction_pairs(sample, 200))
+
+sample = ["1 -> 2", "2 -> 3", "3 -> 4,5", "6 -> 7", "7 -> 6"]
+g = {}
+for s in sample:
+    n = s.split(" -> ")
+    g[n[0]] = n[1].split(",")
+print g
+print non_branching_paths(g)
+
+# vt = g['3']
+# print vt[:1]
+# vout = vt[0]
+# vt.remove(vout)
+# print g
+# print vt
