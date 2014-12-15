@@ -234,49 +234,70 @@ def reconstruction_pairs(reads, d):
     return string_spelled_paired([e[0] + "|" + e[1] for e in eu], d)
 
 
-def follow_non_branch(graph, path, k, v, paths):
+def follow_non_branch(graph, path, k, v, inout):
     while len(v) == 1:
         # seguir apenas ate a proxima bifurcacao
-        vo = v[0]
-        path.append(vo)
-        # v.remove(vo)
-        graph[k].remove(vo)
+        out = v[0]
+        path.append(out)
+        graph[k].remove(out)
         try:
-            v = graph[vo]
-            k = vo
+            v = graph[out]
+            k = out
+            #if out is 0 or >1 (!=1), stop non-branch
+            if inout[k][0] != 1 or inout[k][1] != 1:
+                return path
         except KeyError:
             break
-    if len(path) > 1:
-        paths.append(path)
+    return path
 
 
 def non_branching_paths(graph):
     paths = []
+    total_ins = sum(graph.values(), [])
+    inout = {}
+    all_nodes = set(total_ins + graph.keys())
+    for n in all_nodes:
+        try:
+            out = len(graph[n])
+        except KeyError:
+            out = 0
+        inout[n] = (total_ins.count(n), out)
+    middles = set()
     for k in graph.keys():
-        v = graph[k]
+        v = graph[k][:]
+        if inout[k][0] == 1 and inout[k][1] == 1:
+            middles.add(k)
+            continue
         for node in v:
             path = [k]
-            follow_non_branch(graph, path, k, [node], paths)
+            paths.append(follow_non_branch(graph, path, k, [node], inout))
+    #isolated cycles
+    for m in middles:
+        if any(m in s for s in paths):
+            continue
+        path = [m]
+        paths.append(follow_non_branch(graph, path, m, graph[m], inout))
     return paths
 
-# sample = get_file("/data/spell_pair_in.txt").read().splitlines()
-# get_file_w("/data/spell_pair_out.txt").write(string_spelled_paired(sample, 200))
 
-# sample = "GAGA|TTGA TCGT|GATG CGTG|ATGT TGGT|TGAG GTGA|TGTT GTGG|GTGA TGAG|GTTG GGTC|GAGA GTCG|AGAT".split(" ")
-# sample = get_file("/data/read_pair_in.txt").read().splitlines()
-# get_file_w("/data/read_pair_out.txt").write(reconstruction_pairs(sample, 200))
+def contigs(patterns):
+    nbs = non_branching_paths(de_bruijn_patterns(patterns))
+    c = []
+    for p in nbs:
+        c.append(string_spelled(p))
+    return sorted(c)
 
-sample = ["1 -> 2", "2 -> 3", "3 -> 4,5", "6 -> 7", "7 -> 6"]
-g = {}
-for s in sample:
-    n = s.split(" -> ")
-    g[n[0]] = n[1].split(",")
-print g
-print non_branching_paths(g)
 
-# vt = g['3']
-# print vt[:1]
-# vout = vt[0]
-# vt.remove(vout)
-# print g
-# print vt
+# sample = get_file("/data/nb_in.txt").read().splitlines()
+# sample = ["1 -> 2", "2 -> 3", "3 -> 4,5", "6 -> 7", "7 -> 6"]
+# g = {}
+# for sa in sample:
+#     nod = sa.split(" -> ")
+#     g[nod[0]] = nod[1].split(",")
+# outf = get_file_w("/data/nb_out.txt")
+# for np in non_branching_paths(g):
+#     outf.write(' -> '.join(np) + "\n")
+    # print ' -> '.join(np)
+
+sample = "ATG ATG TGT TGG CAT GGA GAT AGA".split(" ")
+print contigs(sample)
