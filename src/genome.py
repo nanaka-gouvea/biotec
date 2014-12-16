@@ -300,8 +300,8 @@ def contigs(patterns):
     # print ' -> '.join(np)
 
 # sample = "ATG ATG TGT TGG CAT GGA GAT AGA".split(" ")
-sample = get_file("/data/contig_in.txt").read().splitlines()
-out = get_file_w("/data/contig_out.txt")
-for c in contigs(sample):
-    out.write(c + "\n")
+# sample = get_file("/data/contig_in.txt").read().splitlines()
+# out = get_file_w("/data/contig_out.txt")
+# for co in contigs(sample):
+#     out.write(co + "\n")
 # print contigs(sample)
