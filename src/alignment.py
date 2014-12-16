@@ -1,5 +1,6 @@
 from sys import maxint
-from itertools import cycle
+from translation import get_file
+from translation import get_file_w
 
 __author__ = 'natalia'
 
@@ -52,15 +53,69 @@ def min_num_coins_change(money, coins, prev=None):
     return min_num_coins
 
 
+def change(money, coins, prev=None):
+    if money == 0:
+        return []
+    if prev is None:
+        prev = {}
+    min_coins = range(money)
+    for c in coins:
+        if money >= c:
+            prevm = money - c
+            try:
+                num_coins = prev[prevm]
+            except KeyError:
+                num_coins = change(prevm, coins, prev)
+                prev[prevm] = num_coins
+                if len(prev.keys()) > coins[0]:
+                    del prev[min(prev.keys())]
+            if len(num_coins) + 1 < len(min_coins):
+                #todo nao adicionar '0'
+                min_coins = num_coins
+                min_coins.append(c)
+    return min_coins
 
-# def dp_change(money, coins):
-#     min_num_coins = {0:0}
-#     for m in range(1, money):
-#         min_num_coins[m] = maxint
-#         for c in coins:
-#             if m >= c:
-#                 if dpc_change()
+
+def manhattam_tourist(line, column, down, right):
+    """
+        down and right = [[]] (0,1) = down[0][1]
+    """
+    range_m = range(len(right))
+    s = [[0 for _ in range_m] for _ in range_m]
+    #column 0
+    for i in range_m[1:]:
+        s[i][0] += s[i - 1][0] + down[i - 1][0]
+    #line 0
+    for i in range_m[1:]:
+        s[0][i] += s[0][i - 1] + right[0][i - 1]
+    print s
+    for i in range(line + 1)[1:]:
+        for j in range(column + 1)[1:]:
+            downward = s[i - 1][j] + down[i - 1][j]
+            rightward = s[i][j - 1] + right[i][j - 1]
+            s[i][j] = max(downward, rightward)
+    print s
+    return s[line][column]
+
+
+def read_manhattam_tourist():
+    data = get_file("/data/manhattam_in.txt").read().splitlines()
+    n = int(data[0].split(" ")[0])
+    m = int(data[0].split(" ")[1])
+    # del data[0]
+    split_i = data.index("-")
+    down = [[int(x) for x in d.split(" ")] for d in data[1:split_i]]
+    print down
+    right = [[int(x) for x in d.split(" ")] for d in data[split_i + 1:]]
+    print right
+    return manhattam_tourist(n, m, down, right)
+
+
+print read_manhattam_tourist()
+# read_manhattam_tourist()
+
 
 
 # print min_num_coins_change(22, [5,4,1])
+# print change(22, [5,4,1])
 # print min_num_coins_change(16053, [23,22,21,14,6,5,3,1])
