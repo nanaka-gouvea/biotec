@@ -116,45 +116,49 @@ def read_manhattam_tourist(filename):
     return manhattam_tourist(n, m, down, right)
 
 
-def retrace_path(l, c, d_diag, d_down, trace, options):
-    path = []
+def retrace_path(l, c, trace, options):
     current = (l, c)
+    path = [current]
     while current != (0, 0):
-        directions = trace[current]
-        direction = directions[0]
+        all_previous = trace[current]
+        previous = all_previous[0]
         # todo tratar mais de um alinhamento otimo
-        if len(directions) > 1:
+        if len(all_previous) > 1:
             options += 1
             del trace[current][0]
-        path.append(direction)
-        if direction == d_diag:
-            current = (current[0] - 1, current[1] - 1)
-        elif direction == d_down:
-            current = (current[0] - 1, current[1])
-        else:
-            current = (current[0], current[1] - 1)
+        path.append(previous)
+        current = previous
     options -= 1
     return path[::-1], options
 
 
+def find_paths(column, line, trace):
+    paths = []
+    options = 1
+    while options > 0:
+        result = retrace_path(line, column, trace, options)
+        paths.append(result[0])
+        options = result[1]
+    return paths
+
+
 def best_path(down, right, diag):
-    d_diag = "s"
-    d_down = "1"
-    d_right = "2"
     line = len(down)
     column = len(right) - 1
     range_c = range(column + 1)
     range_l = range(line + 1)
+    trace = {}
     s = [[0 for _ in range_c] for _ in range_l]
     #column 0
     for i in range_l[1:]:
         s[i][0] += s[i - 1][0] + down[i - 1][0]
+        trace.setdefault((i,0), []).append((i - 1, 0))
     #line 0
     for i in range_c[1:]:
         s[0][i] += s[0][i - 1] + right[0][i - 1]
+        trace.setdefault((0,i), []).append((0, i - 1))
     print "start matrix: "
     print s
-    trace = {}
     for i in range(line + 1)[1:]:
         for j in range(column + 1)[1:]:
             downward = s[i - 1][j] + down[i - 1][j]
@@ -162,27 +166,16 @@ def best_path(down, right, diag):
             diagonal = s[i - 1][j - 1] + diag[i - 1][j - 1]
             max_p = max(downward, rightward, diagonal)
             s[i][j] = max_p
-            from_ = []
             if max_p == diagonal:
-                #s for substitution
-                from_.append(d_diag)
+                trace.setdefault((i,j), []).append((i - 1, j - 1))
             if max_p == downward:
-                #1 for gap in first
-                from_.append(d_down)
+                trace.setdefault((i,j), []).append((i - 1,j))
             if max_p == rightward:
-                #2 for gap in second
-                from_.append(d_right)
-            trace[(i,j)] = from_
+                trace.setdefault((i,j), []).append((i,j - 1))
     print "final matrix: "
     print s
     print trace
-    paths = []
-    options = 1
-    while options > 0:
-        result = retrace_path(line, column, d_diag, d_down, trace, options)
-        paths.append(result[0])
-        options = result[1]
-    return paths
+    return find_paths(column, line, trace)
 
 
 def best_path_graph(down, right, diag):
@@ -244,8 +237,11 @@ def read_matrixes(filename):
     # return best_path_graph(down, right, diag)
 
 # print read_manhattam_tourist("/data/manhattam_in.txt")
-print read_matrixes("/data/manhattam_diag_in.txt")
+# print read_matrixes("/data/manhattam_diag_in.txt")
 
 # print min_num_coins_change(22, [5,4,1])
 # print change(22, [5,4,1])
 # print min_num_coins_change(16053, [23,22,21,14,6,5,3,1])
+
+teste = {(1, 3): [(0, 3)], (3, 0): [(2, 0)], (2, 1): [(1, 1), (1, 0)], (0, 3): [(0, 2)], (4, 0): [(3, 0)], (1, 2): [(0, 2), (1, 1)], (3, 3): [(2, 2)], (4, 4): [(4, 3)], (2, 2): [(2, 1)], (4, 1): [(3, 1)], (1, 1): [(0, 0)], (3, 2): [(2, 2)], (0, 4): [(0, 3)], (1, 4): [(1, 3)], (2, 3): [(2, 2)], (4, 2): [(3, 2)], (1, 0): [(0, 0)], (0, 1): [(0, 0)], (3, 1): [(2, 0), (2, 1)], (0, 2): [(0, 1)], (2, 0): [(1, 0)], (4, 3): [(4, 2)], (3, 4): [(3, 3)], (2, 4): [(2, 3)]}
+print find_paths(4,4,teste)
