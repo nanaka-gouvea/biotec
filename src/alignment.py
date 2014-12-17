@@ -1,6 +1,7 @@
 from sys import maxint
 from translation import get_file
 from translation import get_file_w
+from genome import non_branching_paths
 
 __author__ = 'natalia'
 
@@ -115,7 +116,31 @@ def read_manhattam_tourist(filename):
     return manhattam_tourist(n, m, down, right)
 
 
+def retrace_path(l, c, d_diag, d_down, trace, options):
+    path = []
+    current = (l, c)
+    while current != (0, 0):
+        directions = trace[current]
+        direction = directions[0]
+        # todo tratar mais de um alinhamento otimo
+        if len(directions) > 1:
+            options += 1
+            del trace[current][0]
+        path.append(direction)
+        if direction == d_diag:
+            current = (current[0] - 1, current[1] - 1)
+        elif direction == d_down:
+            current = (current[0] - 1, current[1])
+        else:
+            current = (current[0], current[1] - 1)
+    options -= 1
+    return path[::-1], options
+
+
 def best_path(down, right, diag):
+    d_diag = "s"
+    d_down = "1"
+    d_right = "2"
     line = len(down)
     column = len(right) - 1
     range_c = range(column + 1)
@@ -129,15 +154,77 @@ def best_path(down, right, diag):
         s[0][i] += s[0][i - 1] + right[0][i - 1]
     print "start matrix: "
     print s
+    trace = {}
     for i in range(line + 1)[1:]:
         for j in range(column + 1)[1:]:
             downward = s[i - 1][j] + down[i - 1][j]
             rightward = s[i][j - 1] + right[i][j - 1]
             diagonal = s[i - 1][j - 1] + diag[i - 1][j - 1]
-            s[i][j] = max(downward, rightward, diagonal)
+            max_p = max(downward, rightward, diagonal)
+            s[i][j] = max_p
+            from_ = []
+            if max_p == diagonal:
+                #s for substitution
+                from_.append(d_diag)
+            if max_p == downward:
+                #1 for gap in first
+                from_.append(d_down)
+            if max_p == rightward:
+                #2 for gap in second
+                from_.append(d_right)
+            trace[(i,j)] = from_
     print "final matrix: "
     print s
-    return s[line][column]
+    print trace
+    paths = []
+    options = 1
+    while options > 0:
+        result = retrace_path(line, column, d_diag, d_down, trace, options)
+        paths.append(result[0])
+        options = result[1]
+    return paths
+
+
+def best_path_graph(down, right, diag):
+    line = len(down)
+    column = len(right) - 1
+    range_c = range(column + 1)
+    range_l = range(line + 1)
+    s = [[0 for _ in range_c] for _ in range_l]
+    #column 0
+    for i in range_l[1:]:
+        s[i][0] += s[i - 1][0] + down[i - 1][0]
+    #line 0
+    for i in range_c[1:]:
+        s[0][i] += s[0][i - 1] + right[0][i - 1]
+    print "start matrix: "
+    print s
+    trace = {}
+    for i in range(line + 1)[1:]:
+        for j in range(column + 1)[1:]:
+            downward = s[i - 1][j] + down[i - 1][j]
+            rightward = s[i][j - 1] + right[i][j - 1]
+            diagonal = s[i - 1][j - 1] + diag[i - 1][j - 1]
+            max_p = max(downward, rightward, diagonal)
+            s[i][j] = max_p
+            if max_p == diagonal:
+                #s for substitution
+                trace.setdefault((i - 1, j - 1), []).append((i,j))
+            if max_p == downward:
+                #1 for gap in first
+                trace.setdefault((i - 1,j), []).append((i,j))
+            if max_p == rightward:
+                #2 for gap in second
+                trace.setdefault((i,j - 1), []).append((i,j))
+    print "final matrix: "
+    print s
+    print trace
+    paths = []
+    nbs = non_branching_paths(trace)
+    for nb in nbs:
+        if nb[0] == (0,0) or nb[-1] == (line, column):
+            paths.append(nb)
+    return paths
 
 
 def read_matrixes(filename):
@@ -154,6 +241,7 @@ def read_matrixes(filename):
     print "diag: "
     print diag
     return best_path(down, right, diag)
+    # return best_path_graph(down, right, diag)
 
 # print read_manhattam_tourist("/data/manhattam_in.txt")
 print read_matrixes("/data/manhattam_diag_in.txt")
