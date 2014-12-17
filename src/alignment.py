@@ -80,41 +80,83 @@ def manhattam_tourist(line, column, down, right):
     """
         down and right = [[]] (0,1) = down[0][1]
     """
-    range_m = range(len(right))
-    s = [[0 for _ in range_m] for _ in range_m]
+    range_m = range(column + 1)
+    range_n = range(line + 1)
+    s = [[0 for _ in range_m] for _ in range_n]
     #column 0
-    for i in range_m[1:]:
+    for i in range_n[1:]:
         s[i][0] += s[i - 1][0] + down[i - 1][0]
     #line 0
     for i in range_m[1:]:
         s[0][i] += s[0][i - 1] + right[0][i - 1]
+    print "start matrix: "
     print s
     for i in range(line + 1)[1:]:
         for j in range(column + 1)[1:]:
             downward = s[i - 1][j] + down[i - 1][j]
             rightward = s[i][j - 1] + right[i][j - 1]
             s[i][j] = max(downward, rightward)
+    print "final matrix: "
     print s
     return s[line][column]
 
 
-def read_manhattam_tourist():
-    data = get_file("/data/manhattam_in.txt").read().splitlines()
+def read_manhattam_tourist(filename):
+    data = get_file(filename).read().splitlines()
     n = int(data[0].split(" ")[0])
     m = int(data[0].split(" ")[1])
-    # del data[0]
     split_i = data.index("-")
     down = [[int(x) for x in d.split(" ")] for d in data[1:split_i]]
+    print "down: "
     print down
     right = [[int(x) for x in d.split(" ")] for d in data[split_i + 1:]]
+    print "right: "
     print right
     return manhattam_tourist(n, m, down, right)
 
 
-print read_manhattam_tourist()
-# read_manhattam_tourist()
+def best_path(down, right, diag):
+    line = len(down)
+    column = len(right) - 1
+    range_c = range(column + 1)
+    range_l = range(line + 1)
+    s = [[0 for _ in range_c] for _ in range_l]
+    #column 0
+    for i in range_l[1:]:
+        s[i][0] += s[i - 1][0] + down[i - 1][0]
+    #line 0
+    for i in range_c[1:]:
+        s[0][i] += s[0][i - 1] + right[0][i - 1]
+    print "start matrix: "
+    print s
+    for i in range(line + 1)[1:]:
+        for j in range(column + 1)[1:]:
+            downward = s[i - 1][j] + down[i - 1][j]
+            rightward = s[i][j - 1] + right[i][j - 1]
+            diagonal = s[i - 1][j - 1] + diag[i - 1][j - 1]
+            s[i][j] = max(downward, rightward, diagonal)
+    print "final matrix: "
+    print s
+    return s[line][column]
 
 
+def read_matrixes(filename):
+    data = get_file(filename).read().splitlines()
+    first_split = data.index("-")
+    down = [[int(x) for x in d.split(" ")] for d in data[:first_split]]
+    print "down: "
+    print down
+    last_split = -(data[::-1].index("-"))
+    right = [[int(x) for x in d.split(" ")] for d in data[first_split + 1:last_split - 1]]
+    print "right: "
+    print right
+    diag = [[int(x) for x in d.split(" ")] for d in data[last_split:]]
+    print "diag: "
+    print diag
+    return best_path(down, right, diag)
+
+# print read_manhattam_tourist("/data/manhattam_in.txt")
+print read_matrixes("/data/manhattam_diag_in.txt")
 
 # print min_num_coins_change(22, [5,4,1])
 # print change(22, [5,4,1])
