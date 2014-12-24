@@ -2,6 +2,9 @@ from sys import maxint
 from translation import get_file
 from translation import get_file_w
 from genome import non_branching_paths
+import re
+from random import choice
+from copy import deepcopy
 
 __author__ = 'natalia'
 
@@ -15,7 +18,10 @@ def substitution_matrix():
     return subst_matrix
 
 
-def construct_alignment(l, c, trace, s1, s2, options):
+#todo the path choice is all f* up. there are many more choices, you cant delete the extras before all uses if it
+#xxx the paths are repeated
+def construct_alignment(l, c, trace, s1, s2):
+    op = 0
     current = (l, c)
     path = ["", ""]
     while current != (0, 0):
@@ -23,29 +29,30 @@ def construct_alignment(l, c, trace, s1, s2, options):
         previous = all_previous[0]
         direction = all_previous[0][1]
         if len(all_previous) > 1:
-            options += 1
+            op += 1
             del trace[current][0]
         if direction == "diag":
             path[0] += s1[current[1] - 1]
             path[1] += s2[current[0] - 1]
-        elif direction == "down":
+        elif direction == "right":
             path[0] += "-"
             path[1] += s2[current[0] - 1]
         else:
             path[0] += s1[current[1] - 1]
             path[1] += "-"
         current = previous[0]
-    options -= 1
-    return path[::-1], options
+
+    return [path[0][::-1], path[1][::-1]], op
 
 
 def find_all_alignments(column, line, trace, s1, s2):
     paths = []
     options = 1
     while options > 0:
-        result = construct_alignment(line, column, trace, s1, s2, options)
+        result = construct_alignment(line, column, trace, s1, s2)
         paths.append(result[0])
         options = result[1]
+        options -= 1
     return paths
 
 
@@ -54,6 +61,8 @@ def sequence_alignment(s1, s2):
     column = len(s1)
     range_c = range(column + 1)
     range_l = range(line + 1)
+    #trace example: {(1,2):[((0,2),"down"),((1,1),"right")]}
+    #this means that the max value in node 1,2 can come from 0,2 if going down, n' from 1,1 going right
     trace = {}
     s = [[0 for _ in range_c] for _ in range_l]
     #first column and row are all 0 for now
@@ -64,8 +73,8 @@ def sequence_alignment(s1, s2):
     for i in range_c[1:]:
         trace.setdefault((0,i), []).append(((0, i - 1), "right"))
 
-    print "start matrix: "
-    print s
+    # print "start matrix: "
+    # print s
     for i in range(len(s))[1:]:
         for j in range(len(s[0]))[1:]:
             match = s2[i - 1] == s1[j - 1]
@@ -84,8 +93,10 @@ def sequence_alignment(s1, s2):
                 trace.setdefault((i,j), []).append(((i - 1,j), "down"))
             if max_p == rightward:
                 trace.setdefault((i,j), []).append(((i,j - 1), "right"))
+
     print "final matrix: "
-    print s
+    for m in s:
+        print m
     print trace
     return find_all_alignments(column, line, trace, s1, s2)
 
@@ -100,32 +111,112 @@ def output_alignment(s1, s2):
         print a[0]
         print a[1]
 
+
+def output_lcs(s1, s2, filew=None):
+    alignments = sequence_alignment(s1, s2)
+    print "Possible:"
+    count = 0
+    for a in alignments:
+        lcs = ""
+        count += 1
+        if filew is None:
+            print count, ": "
+            for i in range(len(a[0])):
+                if a[0][i] == a[1][i]:
+                    lcs += a[0][i]
+            print lcs
+        else:
+            filew.write(str(count) + ": " + "\n")
+            for i in range(len(a[0])):
+                if a[0][i] == a[1][i]:
+                    lcs += a[0][i]
+            filew.write(lcs + "\n")
+
+
+def topological_order_nodes(graph, backtrace, start_nodes, source):
+    aux_graph = deepcopy(graph)
+    aux_bt = deepcopy(backtrace)
+    from_source = [source]
+    ordered = [source]
+    candidates = start_nodes[:]
+    candidates.remove(source)
+    #todo ignore nodes that aren't a path from source
+    while len(candidates) > 0:
+        a = choice(candidates)
+        # if a in from_source:
+        ordered.append(a)
+        candidates.remove(a)
+        try:
+            for b in graph[a].keys():
+                del aux_graph[a][b]
+                aux_bt[b].remove(a)
+                if len(aux_bt[b]) == 0 and b in from_source:
+                    candidates.append(b)
+        except KeyError:
+            pass
+    return ordered
+
+
+def longest_path(source, sink, graph):
+    # node:[(0, "source")]
+    trace = {}
+    #all nodes with indegree > 0
+    nodes_values = {n:0 for n in set(sum([v.keys() for v in graph.values()], []))}
+    start_nodes = [x for x in graph.keys() if x not in nodes_values]
+    backtrace = {}
+    for k, value in graph.iteritems():
+        for v in value:
+            backtrace.setdefault(v, []).append(k)
+    ordered = topological_order_nodes(graph, backtrace, start_nodes)
+    for n in ordered:
+        if n in start_nodes:
+            # if n == source:
+                #maximizes value from source, so other paths wont be as good
+                # nodes_values[n] = 100
+            # else:
+                #no need to compute value, start nodes value is 0
+            nodes_values[n] = 0
+            continue
+        # maxv = [(0, source)]
+        maxv = [(0, None)]
+        for b in backtrace[n]:
+            value = nodes_values[b] + graph[b][n]
+            if value > maxv[0][0]:
+                maxv = [(value, b)]
+            elif value == maxv[0][0]:
+                maxv.append((value, b))
+        for m in maxv:
+            trace.setdefault(n, []).append(m[1])
+        nodes_values[n] = maxv[0][0]
+    print trace
+    path = [sink]
+    current = sink
+    while current != source:
+        all_previous = trace[current]
+        prev = choice(all_previous)
+        path.append(prev)
+        current = prev
+    return nodes_values[sink], path[::-1]
+
+
+def read_longest_path():
+    graph = {}
+    lines = [re.split('->|:', l) for l in get_file("/data/lp_in.txt").read().splitlines()]
+    for l in lines[2:]:
+        graph.setdefault(l[0], {})[l[1]] = int(l[2])
+    lp = longest_path(lines[0][0], lines[1][0], graph)
+    print lp[0]
+    print "->".join(lp[1])
+
+
 # t1 = "AACCTTGG"
 # t2 = "ACACTGTGA"
+# AACTGG
+# output_lcs(sequence_alignment(t1, t2, True), t1, len(t2),len(t1))
 # output_alignment(t1, t2)
-
-
-def output_lcs(backtrack, v, i, j):
-    if i == 0 or j == 0:
-        return
-    if backtrack[i][j] == "down":
-        output_lcs(backtrack, v, i - 1, j)
-    elif backtrack[i,j] == "right":
-        output_lcs(backtrack, v, i, j - 1)
-    else:
-        output_lcs(backtrack, v, i - 1, j - 1)
-        print v[i]
-
-
-
-
-
-
-
-
-
-
-
+# out = get_file_w("/data/lcs_out.txt")
+# output_lcs(t1, t2, out)
+read_longest_path()
 
 
 
