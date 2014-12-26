@@ -9,15 +9,6 @@ from copy import deepcopy
 __author__ = 'natalia'
 
 
-def substitution_matrix():
-    subst_matrix = {}
-    subst_matrix["A"] = {"C":-5, "T":-5, "G":-7, "A":2}
-    subst_matrix["C"] = {"C":2, "T":-7, "G":-5, "A":-5}
-    subst_matrix["G"] = {"C":-5, "T":-7, "G":2, "A":-7}
-    subst_matrix["T"] = {"C":-7, "T":2, "G":-7, "A":-5}
-    return subst_matrix
-
-
 #todo the path choice is all f* up. there are many more choices, you cant delete the extras before all uses if it
 #xxx the paths are repeated
 def construct_alignment(l, c, trace, s1, s2):
@@ -178,7 +169,6 @@ def longest_path(source, sink, graph):
         if n in start_nodes:
             #no need to compute value, start nodes value is 0
             continue
-        # maxv = [(0, source)]
         maxv = [(0, None)]
         for b in backtrace[n]:
             value = nodes_values[b] + graph[b][n]
@@ -214,6 +204,81 @@ def read_longest_path():
     print "->".join(lp[1])
 
 
+def sequence_alignment_scored(s1, s2, p, subm):
+    """
+    :param s1: sequence 1
+    :param s2: sequence 2
+    :param p: gap penalty
+    :param subm substution matrix for scoring
+    :return: possible alignments with greatest score
+    """
+    line = len(s2)
+    column = len(s1)
+    range_c = range(column + 1)
+    range_l = range(line + 1)
+    #trace example: {(1,2):[((0,2),"down"),((1,1),"right")]}
+    #this means that the max value in node 1,2 can come from 0,2 if going down, n' from 1,1 going right
+    trace = {}
+    s = [[0 for _ in range_c] for _ in range_l]
+    #first column and row are all 0 for now
+    #column 0
+    for i in range_l[1:]:
+        trace.setdefault((i,0), []).append(((i - 1, 0), "down"))
+    #line 0
+    for i in range_c[1:]:
+        trace.setdefault((0,i), []).append(((0, i - 1), "right"))
+    # print "start matrix: "
+    # print s
+    for i in range(len(s))[1:]:
+        for j in range(len(s[0]))[1:]:
+            diags = subm[s1[j - 1]][s2[i - 1]]
+            downward = s[i - 1][j] + p
+            rightward = s[i][j - 1] + p
+            diagonal = s[i - 1][j - 1] + diags
+            max_p = max(downward, rightward, diagonal)
+            s[i][j] = max_p
+            if max_p == diagonal:
+                trace.setdefault((i,j), []).append(((i - 1, j - 1), "diag"))
+            if max_p == downward:
+                trace.setdefault((i,j), []).append(((i - 1,j), "down"))
+            if max_p == rightward:
+                trace.setdefault((i,j), []).append(((i,j - 1), "right"))
+
+    print "final matrix: "
+    for m in s:
+        print m
+    print trace
+    return find_all_alignments(column, line, trace, s1, s2)
+
+
+def read_subm():
+    mfile = get_file("/resources/blossum62.txt")
+    lines = [l.split() for l in mfile.read().splitlines()]
+    xline = lines[0]
+    subm = {x:{} for x in xline}
+    for l in lines[1:]:
+        for i in range(len(l))[1:]:
+            subm[xline[i - 1]][l[0]] = int(l[i])
+    return subm
+
+
+def output_alignment_scored(s1, s2, p):
+    alignments = sequence_alignment_scored(s1, s2, p, read_subm())
+    print "Possible:"
+    count = 0
+    for a in alignments:
+        count += 1
+        print count, ": "
+        print a[0]
+        print a[1]
+
+
+def construct_alignment_graph(s1, s2, p, subm):
+    graph = {}
+    for x in s1:
+        for y in s2:
+            graph.setdefault(x, {})[y] = subm[]
+
 # t1 = "AACCTTGG"
 # t2 = "ACACTGTGA"
 # AACTGG
@@ -221,8 +286,10 @@ def read_longest_path():
 # output_alignment(t1, t2)
 # out = get_file_w("/data/lcs_out.txt")
 # output_lcs(t1, t2, out)
-read_longest_path()
-
+# read_longest_path()
+t1 = "MEANLY"
+t2 = "PLEASANTLY"
+output_alignment_scored(t1, t2, -5)
 
 
 
