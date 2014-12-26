@@ -136,10 +136,10 @@ def output_lcs(s1, s2, filew=None):
 def topological_order_nodes(graph, backtrace, start_nodes, source):
     aux_graph = deepcopy(graph)
     aux_bt = deepcopy(backtrace)
-    from_source = [source]
-    ordered = [source]
+    # from_source = [source]
+    ordered = []
     candidates = start_nodes[:]
-    candidates.remove(source)
+    # candidates.remove(source)
     #todo ignore nodes that aren't a path from source
     while len(candidates) > 0:
         a = choice(candidates)
@@ -150,7 +150,7 @@ def topological_order_nodes(graph, backtrace, start_nodes, source):
             for b in graph[a].keys():
                 del aux_graph[a][b]
                 aux_bt[b].remove(a)
-                if len(aux_bt[b]) == 0 and b in from_source:
+                if len(aux_bt[b]) == 0:
                     candidates.append(b)
         except KeyError:
             pass
@@ -163,19 +163,20 @@ def longest_path(source, sink, graph):
     #all nodes with indegree > 0
     nodes_values = {n:0 for n in set(sum([v.keys() for v in graph.values()], []))}
     start_nodes = [x for x in graph.keys() if x not in nodes_values]
+    for s in start_nodes:
+        if s == source:
+            #maximizes value from source, so other paths wont be as good
+            nodes_values[s] = 100
+        else:
+            nodes_values[s] = 0
     backtrace = {}
     for k, value in graph.iteritems():
         for v in value:
             backtrace.setdefault(v, []).append(k)
-    ordered = topological_order_nodes(graph, backtrace, start_nodes)
+    ordered = topological_order_nodes(graph, backtrace, start_nodes, source)
     for n in ordered:
         if n in start_nodes:
-            # if n == source:
-                #maximizes value from source, so other paths wont be as good
-                # nodes_values[n] = 100
-            # else:
-                #no need to compute value, start nodes value is 0
-            nodes_values[n] = 0
+            #no need to compute value, start nodes value is 0
             continue
         # maxv = [(0, source)]
         maxv = [(0, None)]
@@ -187,7 +188,11 @@ def longest_path(source, sink, graph):
                 maxv.append((value, b))
         for m in maxv:
             trace.setdefault(n, []).append(m[1])
-        nodes_values[n] = maxv[0][0]
+        if n == source:
+            #maximizes value from source, so other paths wont be as good
+            nodes_values[n] = maxv[0][0] + 100
+        else:
+            nodes_values[n] = maxv[0][0]
     print trace
     path = [sink]
     current = sink
@@ -196,7 +201,7 @@ def longest_path(source, sink, graph):
         prev = choice(all_previous)
         path.append(prev)
         current = prev
-    return nodes_values[sink], path[::-1]
+    return nodes_values[sink] - 100, path[::-1]
 
 
 def read_longest_path():
