@@ -11,8 +11,8 @@ __author__ = 'natalia'
 
 #todo the path choice is all f* up. there are many more choices, you cant delete the extras before all uses if it
 #xxx the paths are repeated
-def construct_alignment(l, c, trace, s1, s2):
-    op = 0
+def construct_alignment(l, c, trace, s1, s2, op):
+    # op = 0
     current = (l, c)
     path = ["", ""]
     while current != (0, 0):
@@ -25,7 +25,7 @@ def construct_alignment(l, c, trace, s1, s2):
         if direction == "diag":
             path[0] += s1[current[1] - 1]
             path[1] += s2[current[0] - 1]
-        elif direction == "right":
+        elif direction == "down":
             path[0] += "-"
             path[1] += s2[current[0] - 1]
         else:
@@ -40,7 +40,7 @@ def find_all_alignments(column, line, trace, s1, s2):
     paths = []
     options = 1
     while options > 0:
-        result = construct_alignment(line, column, trace, s1, s2)
+        result = construct_alignment(line, column, trace, s1, s2, options)
         paths.append(result[0])
         options = result[1]
         options -= 1
@@ -204,7 +204,7 @@ def read_longest_path():
     print "->".join(lp[1])
 
 
-def sequence_alignment_scored(s1, s2, p, subm):
+def sequence_alignment_scored(s1, s2, p, subm, local=False):
     """
     :param s1: sequence 1
     :param s2: sequence 2
@@ -219,8 +219,9 @@ def sequence_alignment_scored(s1, s2, p, subm):
     #trace example: {(1,2):[((0,2),"down"),((1,1),"right")]}
     #this means that the max value in node 1,2 can come from 0,2 if going down, n' from 1,1 going right
     trace = {}
-    s = [[0 for _ in range_c] for _ in range_l]
-    #first column and row are all 0 for now
+    s = [[l * (-p)] for l in range_l]
+    s[0] += ([c * (-p) for c in range_c[1:]])
+
     #column 0
     for i in range_l[1:]:
         trace.setdefault((i,0), []).append(((i - 1, 0), "down"))
@@ -231,12 +232,15 @@ def sequence_alignment_scored(s1, s2, p, subm):
     # print s
     for i in range(len(s))[1:]:
         for j in range(len(s[0]))[1:]:
+            downward = s[i - 1][j] - p
+            rightward = s[i][j - 1] - p
             diags = subm[s1[j - 1]][s2[i - 1]]
-            downward = s[i - 1][j] + p
-            rightward = s[i][j - 1] + p
             diagonal = s[i - 1][j - 1] + diags
-            max_p = max(downward, rightward, diagonal)
-            s[i][j] = max_p
+            if local:
+                max_p = max(downward, rightward, diagonal, 0)
+            else:
+                max_p = max(downward, rightward, diagonal)
+            s[i].append(max_p)
             if max_p == diagonal:
                 trace.setdefault((i,j), []).append(((i - 1, j - 1), "diag"))
             if max_p == downward:
@@ -244,15 +248,16 @@ def sequence_alignment_scored(s1, s2, p, subm):
             if max_p == rightward:
                 trace.setdefault((i,j), []).append(((i,j - 1), "right"))
 
-    print "final matrix: "
-    for m in s:
-        print m
-    print trace
+    # print "final matrix: "
+    # for m in s:
+    #     print m
+    # print trace
+    print "FINAL SCORE: " + str(s[line][column])
     return find_all_alignments(column, line, trace, s1, s2)
 
 
 def read_subm():
-    mfile = get_file("/resources/blossum62.txt")
+    mfile = get_file("/resources/pam250.txt")
     lines = [l.split() for l in mfile.read().splitlines()]
     xline = lines[0]
     subm = {x:{} for x in xline}
@@ -262,8 +267,8 @@ def read_subm():
     return subm
 
 
-def output_alignment_scored(s1, s2, p):
-    alignments = sequence_alignment_scored(s1, s2, p, read_subm())
+def output_alignment_scored(s1, s2, p, local=False):
+    alignments = sequence_alignment_scored(s1, s2, p, read_subm(), local)
     print "Possible:"
     count = 0
     for a in alignments:
@@ -277,20 +282,15 @@ def construct_alignment_graph(s1, s2, p, subm):
     graph = {}
     for x in s1:
         for y in s2:
-            graph.setdefault(x, {})[y] = subm[]
+            # graph.setdefault(x, {})[y] = subm[]
+            return
 
-# t1 = "AACCTTGG"
-# t2 = "ACACTGTGA"
-# AACTGG
-# output_lcs(sequence_alignment(t1, t2, True), t1, len(t2),len(t1))
-# output_alignment(t1, t2)
-# out = get_file_w("/data/lcs_out.txt")
-# output_lcs(t1, t2, out)
-# read_longest_path()
 t1 = "MEANLY"
 t2 = "PLEASANTLY"
-output_alignment_scored(t1, t2, -5)
-
+# t1 = "DPCNKPGIDMNKYRECQQDGLCKIWCRFKNGLWCVYHDPDKHGLFPEWPTLGKLHMVVDDPYFHLFQTTFVVQLQQLISCKNAFMPKPKGCNPNGVVSRIPVLNAFNWIQFYWLGQMLVPGINVPWFQRSDKFMACCFPFIYECILDCIQAFRVWHTNYEVYERWNNYWFYGKEFRQAKNPNESRMWIEVHTYCLLNELMWIQPNMYARANTFVGHRNMHAVSIPDLTVQAMEVDFRRAILTYEVFLAVGLLFPQSKHLNWGDCARALHNSFCMYAPSLVGSGPNGVHPLSQIFFWERDHEMSAHTQHEWRKDFSWWNSERMQPEVSYQFSIDAKERWFNFCRVLMTKKFTAVIWENESMAWQLNACAYLNFFGDWPTNQCNWNIVKLRALESSHTIQNWDIHQGRCKWLYKFRCVCEFLCICKNFYMTVQHQEVRRCMSVRSEISTCKECECIIGYVQTPFDYTEPWGITYGTDHRLSREENKTFPFGFSQISRLPVHPHDAHTVPWGCGLCFFEQWAYASTCRSGVPMMEAKMVLHQYVGVVYQHTTDVRGHVFHMEFSKCWALYRLLQDFMHNKKGMMGAKGSGEHQEKGRKNVNYCSGSYNMAGNAVNRIVIVTKENGIGKYRLRKHYFHIQPFQWLNPCMTFQGTRVFEQIRLTVQARFHWAVWQTNTFCNKMTVWIRNYIIIWLEYPCREMSKAHRGWLTPGGEAVMYATKAKKSNCPDKWSGQLLVNGCGVWEPD"
+# t2 = "DPCNKPGIDRTTMYCDGLCKIWCRFKNKCFYASVLWCVYHDPCRDPPKPNLQKLHMVVDDPVEAHFHLFQNPCHNHMFIAQCTVANAFGVQPAFWPKPKGCNSNCVVSVLNAFNWIQFYWLVPGINVPWFQRSDKFMACCDEEHDLVRMFIYECILDCIQWWWRYERWNWINYRYWLYGKESTMWIEVWTYCLLNELMWIQPNRHYCRANYFLVGDRNMHPVSIPDLTVQAEDCLEKVDFREAILTYSLNTCFVDCARALHNSFCMYAPFLEGSGPNGVHPASQVFFWEREHEQHEWRKDFSWWNLYLTLSERMQPEVSYERFSIDAKERWFNFCDIGLQHKWWFLMNITQFIKKRRLMVMAFMGWVCYKNGAVTSQFLNFFGDWKAFLCAWNFTNQCNWNVVKLSRAKWSSHTIQNWDFPWMHQGRCKWLCKFRSCHLMDKVCEYSTVQHQEVRRCMSTCKDCACNIGYVQTPFDYCYPWGITPVTLGHNCHCRPVTDHRISNKFLMDQWQYFRFGGSQPSRLPVHPHDAHTVPWGCAYMWHHLLCFLGNLVDPEQWAYASTCRSGVPMMEALNVLHQGFRRVGVVYYIELHTEIFRQKERGHYVQNEAWAFHMEFSKCWALYRLLQWFMHNKWMGTGAKGSGEFLEGGRKNVYWVFDVQVPIVTKENGIGYNLICMDVHIWPFARGWKLNPCMTFQGTRVFIQIRLTVQFHEIQRFHWPFVLHKCHSVWQTNTFCNKMWVWIRNYIIIQLEYPCRFLSKHRGWLTPGKSRSLFKKSNCPDKYWSGQALVNGCGIWEPD"
+output_alignment_scored(t1, t2, 5)
+# construct_alignment_graph(t1, t2, -5, read_subm())
 
 
 
