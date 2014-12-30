@@ -238,9 +238,13 @@ def sequence_alignment_scored(s1, s2, p, subm, atype="global"):
     if local:
         s = [[0] for _ in range_l]
         s[0] += ([0 for _ in range_c[1:]])
-    else:
+    elif globalt:
         s = [[l * (-p)] for l in range_l]
         s[0] += ([c * (-p) for c in range_c[1:]])
+    else:
+        #first column is 0 for fitting alignment
+        s = [[l * (-p)] for l in range_l]
+        s[0] += ([0 for _ in range_c[1:]])
 
     #column 0
     for i in range_l[1:]:
@@ -285,6 +289,8 @@ def sequence_alignment_scored(s1, s2, p, subm, atype="global"):
     if globalt:
         eline = line
         ecolumn = column
+    elif fitting:
+        eline = line
     print "FINAL SCORE: " + str(s[eline][ecolumn])
     return find_all_alignments(ecolumn, eline, trace, s1, s2)
 
