@@ -5,16 +5,18 @@ from genome import non_branching_paths
 import re
 from random import choice
 from copy import deepcopy
+from origin import hamming_d
 
 __author__ = 'natalia'
 
-
+#TODO go to pyhton 3.4 to use enums!! and then put all into classes =(
 #todo the path choice is all f* up. there are many more choices, you cant delete the extras before all uses if it
 #xxx the paths are repeated
 def construct_alignment(l, c, trace, s1, s2, op):
     # op = 0
     current = (l, c)
     path = ["", ""]
+    distance = 0
     while current != (0, 0):
         all_previous = trace[current]
         previous = all_previous[0]
@@ -25,6 +27,8 @@ def construct_alignment(l, c, trace, s1, s2, op):
         if direction == "diag":
             path[0] += s1[current[1] - 1]
             path[1] += s2[current[0] - 1]
+            # if s1[current[1] - 1] == s2[current[0] - 1]:
+            #     distance += 1
         elif direction == "down":
             path[0] += "-"
             path[1] += s2[current[0] - 1]
@@ -34,9 +38,12 @@ def construct_alignment(l, c, trace, s1, s2, op):
         else:
             #free taxi ride
             pass
+        # distance -= 1
         current = previous[0]
 
-    return [path[0][::-1], path[1][::-1]], op
+    #teste
+    distance = hamming_d(path[0], path[1])
+    return [path[0][::-1], path[1][::-1], distance], op
 
 
 def find_all_alignments(column, line, trace, s1, s2):
@@ -104,6 +111,7 @@ def output_alignment(s1, s2):
         print count, ": "
         print a[0]
         print a[1]
+        print "edit distance: " + a[2]
 
 
 def output_lcs(s1, s2, filew=None):
@@ -207,7 +215,7 @@ def read_longest_path():
     print "->".join(lp[1])
 
 
-def sequence_alignment_scored(s1, s2, p, subm, local=False):
+def sequence_alignment_scored(s1, s2, p, subm, atype="global"):
     #TODO GET READ OF THOSE REPEATED OPTIMAL PATHS!!!
     """
     :param s1: sequence 1
@@ -216,6 +224,10 @@ def sequence_alignment_scored(s1, s2, p, subm, local=False):
     :param subm substution matrix for scoring
     :return: possible alignments with greatest score
     """
+    local = atype == "local"
+    globalt = atype == "global"
+    fitting = atype == "fitting"
+
     line = len(s2)
     column = len(s1)
     range_c = range(column + 1)
@@ -238,7 +250,7 @@ def sequence_alignment_scored(s1, s2, p, subm, local=False):
         trace.setdefault((0,i), []).append(((0, i - 1), "right"))
 
     #for keeping the greatest value (sink) to local alignment
-    maxv = 0
+    maxv = -1000
     eline = 0
     ecolumn = 0
 
@@ -270,13 +282,18 @@ def sequence_alignment_scored(s1, s2, p, subm, local=False):
     # print "final matrix: "
     # for m in s:
     #     print m
-
+    if globalt:
+        eline = line
+        ecolumn = column
     print "FINAL SCORE: " + str(s[eline][ecolumn])
     return find_all_alignments(ecolumn, eline, trace, s1, s2)
 
 
-def read_subm():
-    mfile = get_file("/resources/pam250.txt")
+def read_subm(subm_name=None):
+    if subm_name is None:
+        mfile = get_file("/resources/pam250.txt")
+    else:
+        mfile = get_file("/resources/" + subm_name + ".txt")
     lines = [l.split() for l in mfile.read().splitlines()]
     xline = lines[0]
     subm = {x:{} for x in xline}
@@ -286,8 +303,8 @@ def read_subm():
     return subm
 
 
-def output_alignment_scored(s1, s2, p, local=False):
-    alignments = sequence_alignment_scored(s1, s2, p, read_subm(), local)
+def output_alignment_scored(s1, s2, p, atype="global", subm_name=None):
+    alignments = sequence_alignment_scored(s1, s2, p, read_subm(subm_name), atype)
     print "Possible:"
     count = 0
     for a in alignments:
@@ -295,20 +312,14 @@ def output_alignment_scored(s1, s2, p, local=False):
         print count, ": "
         print a[0]
         print a[1]
+        print "edit distance: " + str(a[2])
 
 
-def construct_alignment_graph(s1, s2, p, subm):
-    graph = {}
-    for x in s1:
-        for y in s2:
-            # graph.setdefault(x, {})[y] = subm[]
-            return
-
-# t1 = "MEANLY"
-# t2 = "PENALTY"
-t1 = "CYVENWSQSIQCFVRIDVPWAEMEYMHGCSSWYTMRRKEITIDFYERNSDEVKMHLSKAREACGDIMDHNAYRWHDKCFPCSVFVNMPASPCQDGFAMDNKWWNNYMEFGGNMFSCENWQLTEPGHCASPVWPRFSVQYQYCCYMKWVEVGGYPRTDVMRDHIKQISLYNDQKDRPCCSPIWQSQMSWSVTREHMSDWEHDGLHVLWQGATAPCMKAHSRARHARVKFTSEMPEGWSWMHLIKNQIYWNMWTQTPVKMQIYYPARWVRPYKYVMWHLGILRIGAAHVSYTTCWLNSPWLNQEWLHQPSFGCYEKDNFRTEIQPDNGMCDQPGGEMMFKRICHYHKWQVAESSVPQGFYYHKRPKYMSFKYQRWAHEPHMFIQCVFTFEKKSQTTMSLWNREKTYAQKCMDLGWHNPRISDLWAANDFWHAIFFQQERRSHPFDSWKHAEADYFDRRYEDIDTVSEASYVVVMASYAHPNTSQAAYQFMDGRKIRPLIECEAHYTGKAIHEKDPINTRGMDVMWMQMVPNKGWDVTAGCHRLVIEHAIMSIKKKQVWQLDVCAGWYSVYRTQRWEVTKGWTLIHLHCPGFMDFDSNCKHQNFCQLCMGKRDHDDYYICHFCGQWWCCHCAKIRSAAIYHLAYYVQEKFNMKNGKFRFWTCPIVTMGPPMFQWGAFQMIAISWCCLSCNCVVFYNHFWQDMKIMAMDVQYECAIKVQSDPYNACAWPQTKKMQWPVASCMVQVVLNAPRAGIWFGKKHKMRMSDAAKKSEIVIWRYRGECYAHVGQQARVDDWMFALSQYESSHFQYKYRKRRDRASELTTQWGINDAWYYAMHAEQRGPYPEDAYFLPADYCSFTCLSNWGAQMTHFCHWQVSDMHDPSKASCFINTHIWKQLAYLFEFQC"
-t2 = "IAEAQFHVTAKHGIISNLMGIYVIWLSPWQEEHSETSMPWAGYHGIAWRCGIAFFYREMEEVWFKTVDWDDTLDLQHMTITNCLWYQPNSKTYPLMCGRGKCKADPCRYWKTRGFRCHPQSEEFKRLRKGHCKLFSLIPFWWQPETDSYAGMPSDLHVPSRDETWSMSSQLACQSYVMVVQSHYIFYQTGMYTVVTDFCICLPLTVNNLMCFSVKGEKQIGEHHWYVCCMSSEIECQHLCNYIKPNGAQFFKCLGCQRRPYKLQPFYCGGRCMKHVSMLRLGWMCAHVSYTNCDSFLLNSPWLNQKGVNYICYEKDSQKDIFQPDWGMCDQPGGEMMFKRICLEWPSSVPQGFYYHYIFRPKYYQRWFHQHERVSPGDYTYCMFIQHVFWFSQYTMSLWNPEKVYAQKMDLGKHNPEISDLWAANDFWHVIFFQQERRSHPFDSWNWWPGGGYHAEADYSVRNNDRRHYVVVMHSYWHPNKTDNHSQAAYQFMDDRKYFCWEFTCLLEEEGHRTGKAIHEFDPINTRLMDVMNMECSDVYKWWQRLNIEHTCMRLLPIRMSIKKKQVMQVHRMKQLDVHAGWYSVYRTRWEVTKCRTPQKWHLIHLPCPRGWGEDPIRASNCKHQNKRDVDDYYICHFCGQWWCQHKIRNAYIYLAYHVQEKFNMINVNFRSMVFGTCPIVNIIPKNLMLKDNMYYRRSGAKTQCINLTPHQKATPCMCFASRCIQPNFMTHCQEYPEYADKIKKAVAMGRKYGANPVDLCADDRCQIDGIYNGMVSRLKMVLMLWTCINEMFYHCEDMRDGWPLAGSLMQAMFLNNKHMKMPMRHDCIDWKSDMKILFRPSKEPSRCMHRTQPRYVAHQPSRADTKTQDCCYWEIQMHHSRHKLVKQPQFRSWFPKNVGYNLKHWEPDSECTITKSDRHGSNSTPSEIKHYPFEQNYVEDRKKPFHDIFR"
-output_alignment_scored(t1, t2, 5, True)
+t1 = "GTAGGCTTAAGGTTA"
+t2 = "TAGATA"
+# t1 = "WTNHEENYPVWLQKVSGHQHRHIPLQMITDRDNTEHRGYMQEMKTDWFDHCDHGCTTGKWYVLCSYCCGPLYQELPLISMMHAATSGYPQANSWRNHIRTWNKYKYVNFNDVGTFERSAHGHVCLMTNERYMTSWYILESAGMLNYELKKYMRKSSYCHEWKYRQQSLFHKYHVWHIIWWKEDHDIPLLCWEVDEVDENYWAICCMLFKAQVLEYIVITQEYHFCNSLCDLAAFAYVGVSAIICHFTQHMALCTIVQDCAYRKDVALPPDMHKKQTFISCNWDNHAFHVKTMIVYIMLLSTINWIYAKWLTISRGNDWEFTLAWIGIKVYQMTHETEHEYQRQRWRFFQWEMTELNPVRPYWMQPRTGMMTHNFRCESPHKIYGHTPVLIYHPGHMHYSLSNCQKIERPMQECDHKSMAMWPQSMQMTMDTACPCELQCSSVIVYYDAPPCFPRSGVLAITPYSYACCEDNDLGDSTTTSILKKWGQPAYLMLCMDDALICNFWDFSPKQTNCHVWMVDTSREKEMTCRITAIEKQSDYKNMQDQHVIPSDNCRSKEWDSDFRDYYELPRHFLMQFYWPQNCVKVSKGSCFQGEENPNGHHWYAWNVALIFPIWMKWDSKYILSNFGLHWKMFNCRRGIKIEDMPMRVQLKAIVMHIRFQFWPRAASHDVEYETTVKTNWIIQPHVVLFKLGQNQRRDFMVHGLIIYNKDWLPVYKIDNPAWFYRCDNDIRAQADGFDVETSLVPEESKSCAGAIKGRPFQCEEHKMKFQCHHCSVTRCARDNLFSHWFPLWWSANDWKTVFTNWGKRWKVFYSAFGECAIDPHTQWFNSSDILTRQQNYTPWCHDRHTFGYITLEEETHNTPRVYTISYEMLWHQYKV"
+# t2 = "WTNHEENYPVWPSQLRICQKVSHRHIPDRDFTEHKTDNYFDERPFSPQKEPHGDKVLCSYCCGPLYQELYLISMMHACVKWRWASGYANSWFNRTWNKYKYNSVGTFERDAHGHNERYMGMLWYELSYSNRWTCFHEWHPTRMYHVHHIIWDIPLLAWEVDEQDENAWAICCMLFKAQVLEVIWCIYPFCNSLCDLYFGFSKGVSCIAQYRCHFTQHMHLCTIVQYHKNVALPPDMHKKQTFYLCNWDNHANCHVKTMIVYIMLLSTIYNWIGISFWDWQWWEYCHGFTLAWIGIKVYQMTHETEHEYQRWRFFQAEMTNCEGFYMHHSNPSSRERPYWQQPRTNPMMTHNFRCESPHKIYGHTPVHIYHPGHMHKIERWMQECDHKSMAMWQQSSAPMLKMTMDTYELQCSSVIVYYDAPPCMERSGVLAITPEDSDLREEQSKMYKWGQPQALAFKHKHHHLIGPCMANWSYGHVWMVDTSREKEMACRITAPRKEKQKNPCDQHVCPEDNCRSKCWYMEMQIFSEGRHFLMQFYSLQGSCFQGEENCTGENKHQMHHQKMCWYAWNVHLIFWMKWDSKYILSNFGLHWKLFNCRRGIKIEDMVAPMEPPKVVQFWPRANPMDYTECTTKTNWIIQDPPCWYSDWVFVVLFKLGQNQHRDFMVHGLIIYNKDWLPVYKKNDIRFAQADGFDCETSCVPEDSWPTHRSCAGAKGYPFQFEEHKMYFQCHHCSVTNCARDNLFSHWFLWANDLKKGVHTKVFQNHFMGLIVVLYSAFGECAIDPHTREQGPNPRWFNSNDILTRQQNYTPWCRDHTFGYIRLEEETSDNTSYESLPHQYPKKKEQGKV"
+output_alignment_scored(t1, t2, 1, "fitting", "fitting")
 # construct_alignment_graph(t1, t2, -5, read_subm())
 
 
@@ -417,3 +428,11 @@ def read_matrixes(filename):
     print "diag: "
     print diag
     return alignment_graph(down, right, diag)
+
+
+def construct_alignment_graph(s1, s2, p, subm):
+    graph = {}
+    for x in s1:
+        for y in s2:
+            # graph.setdefault(x, {})[y] = subm[]
+            return
