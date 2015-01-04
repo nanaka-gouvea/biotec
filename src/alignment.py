@@ -89,11 +89,13 @@ def find_all_alignments(column, line, trace, s1, s2):
     options = 1
     choice_track = []
     retrack = []
-    while options > 0:
-        result = construct_alignment_all(line, column, trace, s1, s2, options, choice_track, retrack)
-        paths.append(result[0])
-        options = result[1]
-        options -= 1
+    result = construct_alignment_all(line, column, trace, s1, s2, options, choice_track, retrack)
+    paths.append(result[0])
+    # while options > 0:
+    #     result = construct_alignment_all(line, column, trace, s1, s2, options, choice_track, retrack)
+    #     paths.append(result[0])
+    #     options = result[1]
+    #     options -= 1
     return paths
 
 
@@ -267,6 +269,7 @@ def sequence_alignment_scored(s1, s2, p, subm, atype="global"):
     local = atype == "local"
     globalt = atype == "global"
     fitting = atype == "fitting"
+    overlap = atype == "overlap"
 
     line = len(s2)
     column = len(s1)
@@ -293,11 +296,18 @@ def sequence_alignment_scored(s1, s2, p, subm, atype="global"):
         #line 0
         for i in range_c[1:]:
             trace.setdefault((0,i), []).append(((0, i - 1), "right"))
-    else:
+    elif fitting or overlap:
         #column 0
         for i in range_l[1:]:
             trace.setdefault((i,0), []).append(((i - 1, 0), "free"))
         #line 0
+        for i in range_c[1:]:
+            trace.setdefault((0,i), []).append(((0, i - 1), "right"))
+    else:
+        #column 0
+        for i in range_l[1:]:
+            trace.setdefault((i,0), []).append(((i - 1, 0), "free"))
+            #line 0
         for i in range_c[1:]:
             trace.setdefault((0,i), []).append(((0, i - 1), "free"))
 
@@ -325,10 +335,6 @@ def sequence_alignment_scored(s1, s2, p, subm, atype="global"):
                 maxv = max_p
                 end_line = i
                 end_column = j
-            # match = s1[j - 1] == s2[i - 1]
-            # if fitting and match:
-            #     trace.setdefault((i,j), []).append(((i - 1, j - 1), "diag"))
-            #     continue
             if max_p == diagonal:
                 trace.setdefault((i,j), []).append(((i - 1, j - 1), "diag"))
             if max_p == downward:
@@ -353,6 +359,14 @@ def sequence_alignment_scored(s1, s2, p, subm, atype="global"):
                 max_c = val
                 end_line = i
         end_column = column
+    elif overlap:
+        end_line = line
+        max_l = -1000
+        for i in range(len(s[line])):
+            val = s[line][i]
+            if val >= max_l:
+                max_l = val
+                end_column = i
     print "FINAL SCORE: " + str(s[end_line][end_column]) + " (" + str(end_line) + "," + str(end_column) + ")"
     return find_all_alignments(end_column, end_line, trace, s1, s2)
 
@@ -383,11 +397,11 @@ def output_alignment_scored(s1, s2, p, atype="global", subm_name=None):
         print "edit distance: " + str(a[2])
 
 
-# t2 = "GTAGGCTTAAGGTTA"
-# t1 = "TAGATA"
-t2 = "ATAGCGTGAAGGTAGTGGTCTATAGAACGATCAGCGCTGGGAGAGGGAGTAGTGTATTGCATTCAAGCTGCGGGACTAATATGTCGTTCCCGGGGCATGGCTTCGTCAACCGGTGATCATTATACTCAAGTTACGAGCTGCTCCTAATTCAGACCGAGGCCGCTAAAAATTGTCCCAGATACCTTCCAGCCACGTAATCATGGGTCTCTAGCACTCGGGAGCAAAGTTGCGAGTGCTTGATGCCTCAACGATCTGCCATCAGACTTCGGTGCCAACAGAATTGCGAACACGCAGCGTTACGCGAAGTTGTCATTGTTATTTTATACTAGGGGTAGGATGTAGGGTATCCGCTACGAGATACCGAGTGGTAAGGCGGACCGCTCCTGGTATTTAATCTCTTTCGCAGGGTTGCGTTCAACTCGGCGGTCTTTTATGAGGACCCGCTCGAGAAACTAGGGTGAACTGCGTATCCAGCCAATATAAACGAGCAAATTAGCTGCACAGCTCTACACTGATTTCTTGGGATTTCTCGATAATCATGTAATAAGTTGTAACAACAACTTGCGTTGAGTGCCCTTGTCGATCTCTCGTCCGGTTAAGCACAGTTACGCCCATATCGGCGTCTTCGAAAGAAGCGAATGCTCAATTAAGATACCGTGAAGGGAGTGTACAGAATTTTGTAACGGAGTGTTGACAGCTGGGTAAGTAAGACCAGATGCGTCTTGTCCAGATCTTCACCTGCTACAGTAACGTTGTGTGTTCCACACATGGCGCTTGGGGACCGTTGGTCTACGTCATATCCTCGCACCCGTTGGATACCACACTGTAGGAGGAATAGATGACAGCACAGCACGTAGCACAGTACAGGCTGTCGTAGTTTTTCCAGGTACTTTCGCCGGCTTAATACGATTTAGTGG"
-t1 = "GATCGGCCATACATAAGTAAGTCGAATAAGACTGACCTGTAGTAGCGAGGACTGACCTCTCCCAAGTGGTGGCGCCTATC"
-output_alignment_scored(t1, t2, 1, "fitting", "fitting")
+# t2 = "PAWHEAE"
+# t1 = "HEAGAWGHEE"
+t2 = "ACTTACGATTGGAACAGATTCTGGGTGTAGACTTGTGACGCTTTCTTCGAGCTTATGGGGTTGTACATTCCCGATAAGCAGGACGTTCCGAGACCGTCCTTTGTGCCTGACCCGAAACATTTCCACTGTGTGCCCCCTCACTGAAAGTTTGTTTGGCTATGGTCCGCGGTGTAACAGCGAAGGAGTGGGGGTAGCGAAAAACCGTTAATACCCAAGCCGGAATGAGTGGTGCCCCAGTGAAGTAAAATTGGTAGGCACCCATTCTCATGCAGGGCCGGCGAACACTCAATCGAGTATTCCTGTAGCGATGGAGTAACTTTTGAAAGCGCATCCCTAGCAGTTCACTAAATTAGTCGTGGTTTGGAACGAGCTGGGAGGGACGGTTCTGGGGGTTCTGCAAGAGAGCGGGAAAGATCTTATAACGGTACCACACCCTGTACAAAACACCGAGGTCGAGCCAGGGCGTAGGCAGTTTGATGGCAGGGGTGAAACCCGTGCAACATGGCCTGGTATGGAGTATCGAGGCACTCTTTTGCGTTTGGAAGCTCATTTCGAGACATTGAATCCCGCGGCGTAGCACAATGCCACGTCATAGCCAAAGAAGGATCAAAACTTCAGGTCCAAATACGGACAGGTACGCCGCAGAACATGGTTCATTCCCCCTGAGCGCAGTGCGTGATACGTAAGCATCGGATAATGCAGGCCCAACGTTAAACGCGCCGCTTGGACCGGAATCCGTTCAGTGGTATGGTTAAATTGGGACCCATCCATACTGGCATGTAATCACGTAGGCCGGGTTTTCCTTCAACACCGTGGGTGGCTCGATTAGATTAAGGGTGTAGATAACCCATCCATTTTGGCCTCA"
+t1 = "CCTAAAAAGAAGAATCACGCTCCACGGTCCCACAATACACAATACGCCTCAGGACCCGTCTATCTCCCTGAGCCGTAATTGTGTGATAGCGTAGGCATGGTTTTGTCGCATGTCCCCTATGTTAAACAGACGTTTTGACCGGGATCCTTCAGTGAATGTGGCTCAATTGCACTTACCCATTACAGGACCGGCAATCGCTGTGGCCGGTTTTCCATCACCGCTGCAGGCGACCCCCGTGCAGATTAGAGGCGTAGTGAGCCCATCAACCTCAGCGCTCTACTCGAAAAGCGCCTTGCAGCGCGACCCCGTCCACCTCCCGAAAAAACACGGGATGCTTTGAAGACCTAGCAACGTCTGTTGAATCATATATTCCGGTGGCTTTGAGGCAACTATCGGACATTTGAAGGCTCTCTTTTTCGGGCTAATTCTCTCGCGGCAATCCTCAAGGCACCTGTGTAATTGGCTTAATGAAAAGCTACTCAAACGTACTTGCAATCGAGGGCTTAATGTGATGCCACGAGACTACAGCCGGTTAGAATTCAATGCTACCGGCCGACATACATGGAGACGGCAATTAAATCACCGGCGGACCTGAAGTCAAACTGACGGTCGCCGTGTATGTACGGCGAGACTGTGTTAACCGCTGGGACTCCGACGTCTTACACACAGATCGATTTCAAGGCGGGAAGGTAAAAAGTCCAAAGTAGAATACGAAGTGGGGCCGCCTACGGTTGTAATTCTCTTAAGTGAAAAGAAAGAGCACCAGTACGACAGAACCATGCCGTTCACGGGTTTCGTACATGGAAGACTATCGGGTAATGAACACACGTGAGCCGTTAACACAATATAGGAGGATTGCC"
+output_alignment_scored(t1, t2, 2, "overlap", "mis2")
 # construct_alignment_graph(t1, t2, -5, read_subm())
 
 
