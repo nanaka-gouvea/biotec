@@ -86,3 +86,5 @@ def read_manhattam_tourist(filename):
     print "right: "
     print right
     return manhattam_tourist(n, m, down, right)
+
+print change(24, [3,2])

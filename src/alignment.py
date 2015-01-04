@@ -89,13 +89,13 @@ def find_all_alignments(column, line, trace, s1, s2):
     options = 1
     choice_track = []
     retrack = []
-    result = construct_alignment_all(line, column, trace, s1, s2, options, choice_track, retrack)
-    paths.append(result[0])
-    # while options > 0:
-    #     result = construct_alignment_all(line, column, trace, s1, s2, options, choice_track, retrack)
-    #     paths.append(result[0])
-    #     options = result[1]
-    #     options -= 1
+    # result = construct_alignment_all(line, column, trace, s1, s2, options, choice_track, retrack)
+    # paths.append(result[0])
+    while options > 0:
+        result = construct_alignment_all(line, column, trace, s1, s2, options, choice_track, retrack)
+        paths.append(result[0])
+        options = result[1]
+        options -= 1
     return paths
 
 
@@ -257,7 +257,7 @@ def read_longest_path():
     print "->".join(lp[1])
 
 
-def sequence_alignment_scored(s1, s2, p, subm, atype="global"):
+def sequence_alignment_scored(s1, s2, p, ep, subm, atype="global"):
     #TODO GET READ OF THOSE REPEATED OPTIMAL PATHS!!!
     """
     :param s1: sequence 1
@@ -282,8 +282,9 @@ def sequence_alignment_scored(s1, s2, p, subm, atype="global"):
         s = [[0] for _ in range_l]
         s[0] += ([0 for _ in range_c[1:]])
     elif globalt:
-        s = [[l * (-p)] for l in range_l]
-        s[0] += ([c * (-p) for c in range_c[1:]])
+        s = [[0]]
+        s += [[-p + (l * (-ep))] for l in range_l[:-1]]
+        s[0] += ([-p + (c * (-ep)) for c in range_c[:-1]])
     else:
         #first column is 0 for fitting alignment
         s = [[0] for _ in range_l]
@@ -319,13 +320,18 @@ def sequence_alignment_scored(s1, s2, p, subm, atype="global"):
     maxv = -1000
     end_line = 0
     end_column = 0
+    extending = False
 
     for i in range(len(s))[1:]:
         for j in range(len(s[0]))[1:]:
-            downward = s[i - 1][j] - p
-            rightward = s[i][j - 1] - p
             diags = subm[s1[j - 1]][s2[i - 1]]
             diagonal = s[i - 1][j - 1] + diags
+            if extending:
+                downward = s[i - 1][j] - ep
+                rightward = s[i][j - 1] - ep
+            else:
+                downward = s[i - 1][j] - p
+                rightward = s[i][j - 1] - p
             if local:
                 max_p = max(downward, rightward, diagonal, 0)
             else:
@@ -337,13 +343,17 @@ def sequence_alignment_scored(s1, s2, p, subm, atype="global"):
                 end_column = j
             if max_p == diagonal:
                 trace.setdefault((i,j), []).append(((i - 1, j - 1), "diag"))
+                extending = False
             if max_p == downward:
                 trace.setdefault((i,j), []).append(((i - 1,j), "down"))
+                extending = True
             if max_p == rightward:
                 trace.setdefault((i,j), []).append(((i,j - 1), "right"))
+                extending = True
             if local:
                 if max_p == 0:
                     trace.setdefault((i,j), []).append(((0,0), "free"))
+                    extending = False
 
     print "final matrix: "
     for m in s:
@@ -385,8 +395,8 @@ def read_subm(subm_name=None):
     return subm
 
 
-def output_alignment_scored(s1, s2, p, atype="global", subm_name=None):
-    alignments = sequence_alignment_scored(s1, s2, p, read_subm(subm_name), atype)
+def output_alignment_scored(s1, s2, p, ep, atype="global", subm_name=None):
+    alignments = sequence_alignment_scored(s1, s2, p, ep, read_subm(subm_name), atype)
     print "Possible:"
     count = 0
     for a in alignments:
@@ -399,12 +409,12 @@ def output_alignment_scored(s1, s2, p, atype="global", subm_name=None):
 
 # t2 = "PAWHEAE"
 # t1 = "HEAGAWGHEE"
-t2 = "ACTTACGATTGGAACAGATTCTGGGTGTAGACTTGTGACGCTTTCTTCGAGCTTATGGGGTTGTACATTCCCGATAAGCAGGACGTTCCGAGACCGTCCTTTGTGCCTGACCCGAAACATTTCCACTGTGTGCCCCCTCACTGAAAGTTTGTTTGGCTATGGTCCGCGGTGTAACAGCGAAGGAGTGGGGGTAGCGAAAAACCGTTAATACCCAAGCCGGAATGAGTGGTGCCCCAGTGAAGTAAAATTGGTAGGCACCCATTCTCATGCAGGGCCGGCGAACACTCAATCGAGTATTCCTGTAGCGATGGAGTAACTTTTGAAAGCGCATCCCTAGCAGTTCACTAAATTAGTCGTGGTTTGGAACGAGCTGGGAGGGACGGTTCTGGGGGTTCTGCAAGAGAGCGGGAAAGATCTTATAACGGTACCACACCCTGTACAAAACACCGAGGTCGAGCCAGGGCGTAGGCAGTTTGATGGCAGGGGTGAAACCCGTGCAACATGGCCTGGTATGGAGTATCGAGGCACTCTTTTGCGTTTGGAAGCTCATTTCGAGACATTGAATCCCGCGGCGTAGCACAATGCCACGTCATAGCCAAAGAAGGATCAAAACTTCAGGTCCAAATACGGACAGGTACGCCGCAGAACATGGTTCATTCCCCCTGAGCGCAGTGCGTGATACGTAAGCATCGGATAATGCAGGCCCAACGTTAAACGCGCCGCTTGGACCGGAATCCGTTCAGTGGTATGGTTAAATTGGGACCCATCCATACTGGCATGTAATCACGTAGGCCGGGTTTTCCTTCAACACCGTGGGTGGCTCGATTAGATTAAGGGTGTAGATAACCCATCCATTTTGGCCTCA"
-t1 = "CCTAAAAAGAAGAATCACGCTCCACGGTCCCACAATACACAATACGCCTCAGGACCCGTCTATCTCCCTGAGCCGTAATTGTGTGATAGCGTAGGCATGGTTTTGTCGCATGTCCCCTATGTTAAACAGACGTTTTGACCGGGATCCTTCAGTGAATGTGGCTCAATTGCACTTACCCATTACAGGACCGGCAATCGCTGTGGCCGGTTTTCCATCACCGCTGCAGGCGACCCCCGTGCAGATTAGAGGCGTAGTGAGCCCATCAACCTCAGCGCTCTACTCGAAAAGCGCCTTGCAGCGCGACCCCGTCCACCTCCCGAAAAAACACGGGATGCTTTGAAGACCTAGCAACGTCTGTTGAATCATATATTCCGGTGGCTTTGAGGCAACTATCGGACATTTGAAGGCTCTCTTTTTCGGGCTAATTCTCTCGCGGCAATCCTCAAGGCACCTGTGTAATTGGCTTAATGAAAAGCTACTCAAACGTACTTGCAATCGAGGGCTTAATGTGATGCCACGAGACTACAGCCGGTTAGAATTCAATGCTACCGGCCGACATACATGGAGACGGCAATTAAATCACCGGCGGACCTGAAGTCAAACTGACGGTCGCCGTGTATGTACGGCGAGACTGTGTTAACCGCTGGGACTCCGACGTCTTACACACAGATCGATTTCAAGGCGGGAAGGTAAAAAGTCCAAAGTAGAATACGAAGTGGGGCCGCCTACGGTTGTAATTCTCTTAAGTGAAAAGAAAGAGCACCAGTACGACAGAACCATGCCGTTCACGGGTTTCGTACATGGAAGACTATCGGGTAATGAACACACGTGAGCCGTTAACACAATATAGGAGGATTGCC"
-output_alignment_scored(t1, t2, 2, "overlap", "mis2")
+t2 = "PRTEINS"
+t1 = "PRTWPSEIN"
+# output_alignment_scored(t1, t2, 11, 1, "global", "blossum62")
 # construct_alignment_graph(t1, t2, -5, read_subm())
 
-
+output_lcs("CTCGAT", "TACGTC")
 
 
 
