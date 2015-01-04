@@ -13,22 +13,21 @@ __author__ = 'natalia'
 #todo the path choice is all f* up. there are many more choices, you cant delete the extras before all uses if it
 #xxx the paths are repeated
 def construct_alignment(l, c, trace, s1, s2, op):
-    # op = 0
     current = (l, c)
     path = ["", ""]
-    distance = 0
+    deletedpath = False
     while current != (0, 0):
         all_previous = trace[current]
         previous = all_previous[0]
         direction = all_previous[0][1]
         if len(all_previous) > 1:
             op += 1
-            del trace[current][0]
+            if not deletedpath:
+                del trace[current][0]
+                deletedpath = True
         if direction == "diag":
             path[0] += s1[current[1] - 1]
             path[1] += s2[current[0] - 1]
-            # if s1[current[1] - 1] == s2[current[0] - 1]:
-            #     distance += 1
         elif direction == "down":
             path[0] += "-"
             path[1] += s2[current[0] - 1]
@@ -38,10 +37,49 @@ def construct_alignment(l, c, trace, s1, s2, op):
         else:
             #free taxi ride
             pass
-        # distance -= 1
         current = previous[0]
 
-    #teste
+    distance = hamming_d(path[0], path[1])
+    return [path[0][::-1], path[1][::-1], distance], op
+
+
+def construct_alignment_all(l, c, trace, s1, s2, op, choice_track, retrack):
+    should_retrack = False
+    if len(choice_track) > 0:
+        path = choice_track[-1][0]
+        current = choice_track[-1][1]
+        retrack.append((current, trace[current][0]))
+        del trace[current][0]
+        if len(trace[current]) == 1:
+            del choice_track[-1]
+            should_retrack = True
+    else:
+        current = (l, c)
+        path = ["", ""]
+    while current != (0, 0):
+        all_previous = trace[current]
+        previous = all_previous[0]
+        direction = all_previous[0][1]
+        if len(all_previous) > 1:
+            op += 1
+            choice_track.append([path[:], current])
+        if direction == "diag":
+            path[0] += s1[current[1] - 1]
+            path[1] += s2[current[0] - 1]
+        elif direction == "down":
+            path[0] += "-"
+            path[1] += s2[current[0] - 1]
+        elif direction == "right":
+            path[0] += s1[current[1] - 1]
+            path[1] += "-"
+        else:
+            #free taxi ride
+            pass
+        current = previous[0]
+    if should_retrack:
+        for r in retrack[:]:
+            trace.setdefault(r[0], []).append(r[1])
+            retrack.remove(r)
     distance = hamming_d(path[0], path[1])
     return [path[0][::-1], path[1][::-1], distance], op
 
@@ -49,8 +87,10 @@ def construct_alignment(l, c, trace, s1, s2, op):
 def find_all_alignments(column, line, trace, s1, s2):
     paths = []
     options = 1
+    choice_track = []
+    retrack = []
     while options > 0:
-        result = construct_alignment(line, column, trace, s1, s2, options)
+        result = construct_alignment_all(line, column, trace, s1, s2, options, choice_track, retrack)
         paths.append(result[0])
         options = result[1]
         options -= 1
@@ -90,10 +130,10 @@ def sequence_alignment(s1, s2):
             s[i][j] = max_p
             if max_p == diagonal:
                 trace.setdefault((i,j), []).append(((i - 1, j - 1), "diag"))
-            if max_p == downward:
-                trace.setdefault((i,j), []).append(((i - 1,j), "down"))
             if max_p == rightward:
                 trace.setdefault((i,j), []).append(((i,j - 1), "right"))
+            if max_p == downward:
+                trace.setdefault((i,j), []).append(((i - 1,j), "down"))
 
     print "final matrix: "
     for m in s:
@@ -243,20 +283,32 @@ def sequence_alignment_scored(s1, s2, p, subm, atype="global"):
         s[0] += ([c * (-p) for c in range_c[1:]])
     else:
         #first column is 0 for fitting alignment
-        s = [[l * (-p)] for l in range_l]
-        s[0] += ([0 for _ in range_c[1:]])
+        s = [[0] for _ in range_l]
+        s[0] += ([c * (-p) for c in range_c[1:]])
 
-    #column 0
-    for i in range_l[1:]:
-        trace.setdefault((i,0), []).append(((i - 1, 0), "down"))
-    #line 0
-    for i in range_c[1:]:
-        trace.setdefault((0,i), []).append(((0, i - 1), "right"))
+    if globalt:
+        #column 0
+        for i in range_l[1:]:
+            trace.setdefault((i,0), []).append(((i - 1, 0), "down"))
+        #line 0
+        for i in range_c[1:]:
+            trace.setdefault((0,i), []).append(((0, i - 1), "right"))
+    else:
+        #column 0
+        for i in range_l[1:]:
+            trace.setdefault((i,0), []).append(((i - 1, 0), "free"))
+        #line 0
+        for i in range_c[1:]:
+            trace.setdefault((0,i), []).append(((0, i - 1), "free"))
+
+    print "start matrix: "
+    for m in s:
+        print m
 
     #for keeping the greatest value (sink) to local alignment
     maxv = -1000
-    eline = 0
-    ecolumn = 0
+    end_line = 0
+    end_column = 0
 
     for i in range(len(s))[1:]:
         for j in range(len(s[0]))[1:]:
@@ -271,8 +323,12 @@ def sequence_alignment_scored(s1, s2, p, subm, atype="global"):
             s[i].append(max_p)
             if max_p >= maxv:
                 maxv = max_p
-                eline = i
-                ecolumn = j
+                end_line = i
+                end_column = j
+            # match = s1[j - 1] == s2[i - 1]
+            # if fitting and match:
+            #     trace.setdefault((i,j), []).append(((i - 1, j - 1), "diag"))
+            #     continue
             if max_p == diagonal:
                 trace.setdefault((i,j), []).append(((i - 1, j - 1), "diag"))
             if max_p == downward:
@@ -283,16 +339,22 @@ def sequence_alignment_scored(s1, s2, p, subm, atype="global"):
                 if max_p == 0:
                     trace.setdefault((i,j), []).append(((0,0), "free"))
 
-    # print "final matrix: "
-    # for m in s:
-    #     print m
+    print "final matrix: "
+    for m in s:
+        print m
     if globalt:
-        eline = line
-        ecolumn = column
+        end_line = line
+        end_column = column
     elif fitting:
-        eline = line
-    print "FINAL SCORE: " + str(s[eline][ecolumn])
-    return find_all_alignments(ecolumn, eline, trace, s1, s2)
+        max_c = -1000
+        for i in range(len(s)):
+            val = s[i][column]
+            if val >= max_c:
+                max_c = val
+                end_line = i
+        end_column = column
+    print "FINAL SCORE: " + str(s[end_line][end_column]) + " (" + str(end_line) + "," + str(end_column) + ")"
+    return find_all_alignments(end_column, end_line, trace, s1, s2)
 
 
 def read_subm(subm_name=None):
@@ -321,10 +383,10 @@ def output_alignment_scored(s1, s2, p, atype="global", subm_name=None):
         print "edit distance: " + str(a[2])
 
 
-t1 = "GTAGGCTTAAGGTTA"
-t2 = "TAGATA"
-# t1 = "WTNHEENYPVWLQKVSGHQHRHIPLQMITDRDNTEHRGYMQEMKTDWFDHCDHGCTTGKWYVLCSYCCGPLYQELPLISMMHAATSGYPQANSWRNHIRTWNKYKYVNFNDVGTFERSAHGHVCLMTNERYMTSWYILESAGMLNYELKKYMRKSSYCHEWKYRQQSLFHKYHVWHIIWWKEDHDIPLLCWEVDEVDENYWAICCMLFKAQVLEYIVITQEYHFCNSLCDLAAFAYVGVSAIICHFTQHMALCTIVQDCAYRKDVALPPDMHKKQTFISCNWDNHAFHVKTMIVYIMLLSTINWIYAKWLTISRGNDWEFTLAWIGIKVYQMTHETEHEYQRQRWRFFQWEMTELNPVRPYWMQPRTGMMTHNFRCESPHKIYGHTPVLIYHPGHMHYSLSNCQKIERPMQECDHKSMAMWPQSMQMTMDTACPCELQCSSVIVYYDAPPCFPRSGVLAITPYSYACCEDNDLGDSTTTSILKKWGQPAYLMLCMDDALICNFWDFSPKQTNCHVWMVDTSREKEMTCRITAIEKQSDYKNMQDQHVIPSDNCRSKEWDSDFRDYYELPRHFLMQFYWPQNCVKVSKGSCFQGEENPNGHHWYAWNVALIFPIWMKWDSKYILSNFGLHWKMFNCRRGIKIEDMPMRVQLKAIVMHIRFQFWPRAASHDVEYETTVKTNWIIQPHVVLFKLGQNQRRDFMVHGLIIYNKDWLPVYKIDNPAWFYRCDNDIRAQADGFDVETSLVPEESKSCAGAIKGRPFQCEEHKMKFQCHHCSVTRCARDNLFSHWFPLWWSANDWKTVFTNWGKRWKVFYSAFGECAIDPHTQWFNSSDILTRQQNYTPWCHDRHTFGYITLEEETHNTPRVYTISYEMLWHQYKV"
-# t2 = "WTNHEENYPVWPSQLRICQKVSHRHIPDRDFTEHKTDNYFDERPFSPQKEPHGDKVLCSYCCGPLYQELYLISMMHACVKWRWASGYANSWFNRTWNKYKYNSVGTFERDAHGHNERYMGMLWYELSYSNRWTCFHEWHPTRMYHVHHIIWDIPLLAWEVDEQDENAWAICCMLFKAQVLEVIWCIYPFCNSLCDLYFGFSKGVSCIAQYRCHFTQHMHLCTIVQYHKNVALPPDMHKKQTFYLCNWDNHANCHVKTMIVYIMLLSTIYNWIGISFWDWQWWEYCHGFTLAWIGIKVYQMTHETEHEYQRWRFFQAEMTNCEGFYMHHSNPSSRERPYWQQPRTNPMMTHNFRCESPHKIYGHTPVHIYHPGHMHKIERWMQECDHKSMAMWQQSSAPMLKMTMDTYELQCSSVIVYYDAPPCMERSGVLAITPEDSDLREEQSKMYKWGQPQALAFKHKHHHLIGPCMANWSYGHVWMVDTSREKEMACRITAPRKEKQKNPCDQHVCPEDNCRSKCWYMEMQIFSEGRHFLMQFYSLQGSCFQGEENCTGENKHQMHHQKMCWYAWNVHLIFWMKWDSKYILSNFGLHWKLFNCRRGIKIEDMVAPMEPPKVVQFWPRANPMDYTECTTKTNWIIQDPPCWYSDWVFVVLFKLGQNQHRDFMVHGLIIYNKDWLPVYKKNDIRFAQADGFDCETSCVPEDSWPTHRSCAGAKGYPFQFEEHKMYFQCHHCSVTNCARDNLFSHWFLWANDLKKGVHTKVFQNHFMGLIVVLYSAFGECAIDPHTREQGPNPRWFNSNDILTRQQNYTPWCRDHTFGYIRLEEETSDNTSYESLPHQYPKKKEQGKV"
+# t2 = "GTAGGCTTAAGGTTA"
+# t1 = "TAGATA"
+t2 = "ATAGCGTGAAGGTAGTGGTCTATAGAACGATCAGCGCTGGGAGAGGGAGTAGTGTATTGCATTCAAGCTGCGGGACTAATATGTCGTTCCCGGGGCATGGCTTCGTCAACCGGTGATCATTATACTCAAGTTACGAGCTGCTCCTAATTCAGACCGAGGCCGCTAAAAATTGTCCCAGATACCTTCCAGCCACGTAATCATGGGTCTCTAGCACTCGGGAGCAAAGTTGCGAGTGCTTGATGCCTCAACGATCTGCCATCAGACTTCGGTGCCAACAGAATTGCGAACACGCAGCGTTACGCGAAGTTGTCATTGTTATTTTATACTAGGGGTAGGATGTAGGGTATCCGCTACGAGATACCGAGTGGTAAGGCGGACCGCTCCTGGTATTTAATCTCTTTCGCAGGGTTGCGTTCAACTCGGCGGTCTTTTATGAGGACCCGCTCGAGAAACTAGGGTGAACTGCGTATCCAGCCAATATAAACGAGCAAATTAGCTGCACAGCTCTACACTGATTTCTTGGGATTTCTCGATAATCATGTAATAAGTTGTAACAACAACTTGCGTTGAGTGCCCTTGTCGATCTCTCGTCCGGTTAAGCACAGTTACGCCCATATCGGCGTCTTCGAAAGAAGCGAATGCTCAATTAAGATACCGTGAAGGGAGTGTACAGAATTTTGTAACGGAGTGTTGACAGCTGGGTAAGTAAGACCAGATGCGTCTTGTCCAGATCTTCACCTGCTACAGTAACGTTGTGTGTTCCACACATGGCGCTTGGGGACCGTTGGTCTACGTCATATCCTCGCACCCGTTGGATACCACACTGTAGGAGGAATAGATGACAGCACAGCACGTAGCACAGTACAGGCTGTCGTAGTTTTTCCAGGTACTTTCGCCGGCTTAATACGATTTAGTGG"
+t1 = "GATCGGCCATACATAAGTAAGTCGAATAAGACTGACCTGTAGTAGCGAGGACTGACCTCTCCCAAGTGGTGGCGCCTATC"
 output_alignment_scored(t1, t2, 1, "fitting", "fitting")
 # construct_alignment_graph(t1, t2, -5, read_subm())
 
