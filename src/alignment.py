@@ -10,38 +10,8 @@ from origin import hamming_d
 __author__ = 'natalia'
 
 #TODO go to pyhton 3.4 to use enums!! and then put all into classes =(
+#TODO GET RID OF THOSE REPEATED OPTIMAL PATHS!!!
 #todo the path choice is all f* up. there are many more choices, you cant delete the extras before all uses if it
-#xxx the paths are repeated
-def construct_alignment(l, c, trace, s1, s2, op):
-    current = (l, c)
-    path = ["", ""]
-    deletedpath = False
-    while current != (0, 0):
-        all_previous = trace[current]
-        previous = all_previous[0]
-        direction = all_previous[0][1]
-        if len(all_previous) > 1:
-            op += 1
-            if not deletedpath:
-                del trace[current][0]
-                deletedpath = True
-        if direction == "diag":
-            path[0] += s1[current[1] - 1]
-            path[1] += s2[current[0] - 1]
-        elif direction == "down":
-            path[0] += "-"
-            path[1] += s2[current[0] - 1]
-        elif direction == "right":
-            path[0] += s1[current[1] - 1]
-            path[1] += "-"
-        else:
-            #free taxi ride
-            pass
-        current = previous[0]
-
-    distance = hamming_d(path[0], path[1])
-    return [path[0][::-1], path[1][::-1], distance], op
-
 
 def construct_alignment_all(l, c, trace, s1, s2, op, choice_track, retrack):
     should_retrack = False
@@ -258,11 +228,11 @@ def read_longest_path():
 
 
 def sequence_alignment_scored(s1, s2, p, ep, subm, atype="global"):
-    #TODO GET READ OF THOSE REPEATED OPTIMAL PATHS!!!
     """
     :param s1: sequence 1
     :param s2: sequence 2
-    :param p: gap penalty
+    :param p: gap opening penalty
+    :param ep: gap extension penalty
     :param subm substution matrix for scoring
     :return: possible alignments with greatest score
     """
@@ -320,18 +290,24 @@ def sequence_alignment_scored(s1, s2, p, ep, subm, atype="global"):
     maxv = -1000
     end_line = 0
     end_column = 0
-    extending = False
 
     for i in range(len(s))[1:]:
         for j in range(len(s[0]))[1:]:
-            diags = subm[s1[j - 1]][s2[i - 1]]
-            diagonal = s[i - 1][j - 1] + diags
-            if extending:
-                downward = s[i - 1][j] - ep
-                rightward = s[i][j - 1] - ep
-            else:
-                downward = s[i - 1][j] - p
-                rightward = s[i][j - 1] - p
+            sub_score = subm[s1[j - 1]][s2[i - 1]]
+            diagonal = s[i - 1][j - 1] + sub_score
+
+            down_p = p
+            right_p = p
+            last_if_right = trace[(i,j - 1)][0]
+            if last_if_right[1] == "right":
+                right_p = ep
+            last_if_down = trace[(i - 1,j)][0]
+            if last_if_down[1] == "down":
+                down_p = ep
+
+            downward = s[i - 1][j] - down_p
+            rightward = s[i][j - 1] - right_p
+
             if local:
                 max_p = max(downward, rightward, diagonal, 0)
             else:
@@ -343,17 +319,13 @@ def sequence_alignment_scored(s1, s2, p, ep, subm, atype="global"):
                 end_column = j
             if max_p == diagonal:
                 trace.setdefault((i,j), []).append(((i - 1, j - 1), "diag"))
-                extending = False
             if max_p == downward:
                 trace.setdefault((i,j), []).append(((i - 1,j), "down"))
-                extending = True
             if max_p == rightward:
                 trace.setdefault((i,j), []).append(((i,j - 1), "right"))
-                extending = True
             if local:
                 if max_p == 0:
                     trace.setdefault((i,j), []).append(((0,0), "free"))
-                    extending = False
 
     print "final matrix: "
     for m in s:
@@ -407,14 +379,19 @@ def output_alignment_scored(s1, s2, p, ep, atype="global", subm_name=None):
         print "edit distance: " + str(a[2])
 
 
-# t2 = "PAWHEAE"
-# t1 = "HEAGAWGHEE"
-t2 = "PRTEINS"
-t1 = "PRTWPSEIN"
-# output_alignment_scored(t1, t2, 11, 1, "global", "blossum62")
+# t2 = "PRTEINS"
+# t1 = "PRTWPSEIN"
+t2 = "YHFDVPDCWAHRYWVENPQAIAQMEQICFNWFPSMMMKQPHVFKVDHHMSCRWLPIRGKKCSSCCTRMRVRTVWE"
+t1 = "YHEDVAHEDAIAQMVNTFGFVWQICLNQFPSMMMKIYWIAVLSAHVADRKTWSKHMSCRWLPIISATCARMRVRTVWE"
+output_alignment_scored(t1, t2, 11, 1, "global", "blossum62")
 # construct_alignment_graph(t1, t2, -5, read_subm())
 
-output_lcs("CTCGAT", "TACGTC")
+
+
+#179
+# YHEDV----AH----ED--AIAQMVNTFGFVWQICLNQFPSMMMKIYWIAVLSAHVADRKTWSKHMSCRWLPI----ISATCARMRVRTVWE
+# YHFDVPDCWAHRYWVENPQAIAQM-------EQICFNWFPSMMMK-------QPHVF---KVDHHMSCRWLPIRGKKCSSCCTRMRVRTVWE
+
 
 
 
@@ -528,3 +505,33 @@ def construct_alignment_graph(s1, s2, p, subm):
         for y in s2:
             # graph.setdefault(x, {})[y] = subm[]
             return
+
+def construct_alignment(l, c, trace, s1, s2, op):
+    current = (l, c)
+    path = ["", ""]
+    deletedpath = False
+    while current != (0, 0):
+        all_previous = trace[current]
+        previous = all_previous[0]
+        direction = all_previous[0][1]
+        if len(all_previous) > 1:
+            op += 1
+            if not deletedpath:
+                del trace[current][0]
+                deletedpath = True
+        if direction == "diag":
+            path[0] += s1[current[1] - 1]
+            path[1] += s2[current[0] - 1]
+        elif direction == "down":
+            path[0] += "-"
+            path[1] += s2[current[0] - 1]
+        elif direction == "right":
+            path[0] += s1[current[1] - 1]
+            path[1] += "-"
+        else:
+            #free taxi ride
+            pass
+        current = previous[0]
+
+    distance = hamming_d(path[0], path[1])
+    return [path[0][::-1], path[1][::-1], distance], op
