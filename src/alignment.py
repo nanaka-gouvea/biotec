@@ -298,11 +298,11 @@ def sequence_alignment_scored(s1, s2, p, ep, subm, atype="global"):
 
             down_p = p
             right_p = p
-            last_if_right = trace[(i,j - 1)][0]
-            if last_if_right[1] == "right":
+            last_if_right = [t[1] for t in trace[(i,j - 1)]]
+            if "right" in last_if_right:
                 right_p = ep
-            last_if_down = trace[(i - 1,j)][0]
-            if last_if_down[1] == "down":
+            last_if_down = [t[1] for t in trace[(i - 1,j)]]
+            if "down" in last_if_down:
                 down_p = ep
 
             downward = s[i - 1][j] - down_p
@@ -381,8 +381,8 @@ def output_alignment_scored(s1, s2, p, ep, atype="global", subm_name=None):
 
 # t2 = "PRTEINS"
 # t1 = "PRTWPSEIN"
-t2 = "YHFDVPDCWAHRYWVENPQAIAQMEQICFNWFPSMMMKQPHVFKVDHHMSCRWLPIRGKKCSSCCTRMRVRTVWE"
-t1 = "YHEDVAHEDAIAQMVNTFGFVWQICLNQFPSMMMKIYWIAVLSAHVADRKTWSKHMSCRWLPIISATCARMRVRTVWE"
+t2 = "WDANASYNYDMNDKFQIICRANYNQHLPNPEGIHKDEPKSNWMGKLHNMKNFDQWFEHAEIGMKMYITMLQPLTRIPSVQKKLDFAGN"
+t1 = "WDANASYNYTIICRANYNTHLPNGNFDQWFMHAEIGMKMYDTLQPFMWYCEYRIPCKNDHRIAGASMNKMSLQKKLDFAGN"
 output_alignment_scored(t1, t2, 11, 1, "global", "blossum62")
 # construct_alignment_graph(t1, t2, -5, read_subm())
 
