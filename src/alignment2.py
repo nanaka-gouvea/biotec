@@ -13,7 +13,7 @@ __author__ = 'natalia'
 #TODO GET RID OF THOSE REPEATED OPTIMAL PATHS!!!
 #todo the path choice is all f* up. there are many more choices, you cant delete the extras before all uses if it
 
-def construct_alignment_all(l, c, trace, s1, s2, op, choice_track, retrack):
+def construct_alignment_all(start, trace, s1, s2, op, choice_track, retrack):
     should_retrack = False
     if len(choice_track) > 0:
         path = choice_track[-1][0]
@@ -24,25 +24,26 @@ def construct_alignment_all(l, c, trace, s1, s2, op, choice_track, retrack):
             del choice_track[-1]
             should_retrack = True
     else:
-        current = ((l, c), 0)
+        current = start
         path = ["", ""]
     while current[0] != (0, 0):
         all_previous = trace[current]
         previous = all_previous[0]
-        direction = all_previous[0][1]
+        # direction = all_previous[0][1]
+        atual = current[1]
         if len(all_previous) > 1:
             op += 1
             choice_track.append([path[:], current])
         #middle matrix is diagonal
-        if direction == 0:
+        if atual == 0:
             path[0] += s1[current[0][1] - 1]
             path[1] += s2[current[0][0] - 1]
         #lower matrix is down
-        elif direction == -1:
+        elif atual == -1:
             path[0] += "-"
             path[1] += s2[current[0][0] - 1]
         #upper matrix is right
-        elif direction == 1:
+        elif atual == 1:
             path[0] += s1[current[0][1] - 1]
             path[1] += "-"
         else:
@@ -57,7 +58,7 @@ def construct_alignment_all(l, c, trace, s1, s2, op, choice_track, retrack):
     return [path[0][::-1], path[1][::-1], distance], op
 
 
-def find_all_alignments(column, line, trace, s1, s2):
+def find_all_alignments(start, trace, s1, s2):
     paths = []
     options = 1
     choice_track = []
@@ -65,7 +66,7 @@ def find_all_alignments(column, line, trace, s1, s2):
     # result = construct_alignment_all(line, column, trace, s1, s2, options, choice_track, retrack)
     # paths.append(result[0])
     while options > 0:
-        result = construct_alignment_all(line, column, trace, s1, s2, options, choice_track, retrack)
+        result = construct_alignment_all(start, trace, s1, s2, options, choice_track, retrack)
         paths.append(result[0])
         options = result[1]
         options -= 1
@@ -81,10 +82,7 @@ def sequence_alignment_scored(s1, s2, p, ep, subm, atype="global"):
     :param subm substution matrix for scoring
     :return: possible alignments with greatest score
     """
-    local = atype == "local"
     globalt = atype == "global"
-    fitting = atype == "fitting"
-    overlap = atype == "overlap"
 
     line = len(s2)
     column = len(s1)
@@ -174,8 +172,17 @@ def sequence_alignment_scored(s1, s2, p, ep, subm, atype="global"):
     if globalt:
         end_line = line
         end_column = column
+    start = ((end_line, end_column), 0)
+    try:
+        _ = trace[start]
+    except KeyError:
+        start = ((end_line, end_column), -1)
+        try:
+            _ = trace[start]
+        except KeyError:
+            start = ((end_line, end_column), 1)
     print "FINAL SCORE: " + str(middle[end_line][end_column]) + " (" + str(end_line) + "," + str(end_column) + ")"
-    return find_all_alignments(end_column, end_line, trace, s1, s2)
+    return find_all_alignments(start, trace, s1, s2)
 
 
 def read_subm(subm_name=None):
