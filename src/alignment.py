@@ -296,14 +296,18 @@ def sequence_alignment_scored(s1, s2, p, ep, subm, atype="global"):
             sub_score = subm[s1[j - 1]][s2[i - 1]]
             diagonal = s[i - 1][j - 1] + sub_score
 
+            # this ext was for deleting previous alternative paths if the max val is a gap extension
+            # ext = False
             down_p = p
             right_p = p
             last_if_right = [t[1] for t in trace[(i,j - 1)]]
             if "right" in last_if_right:
                 right_p = ep
+                # ext = True
             last_if_down = [t[1] for t in trace[(i - 1,j)]]
             if "down" in last_if_down:
                 down_p = ep
+                # ext = True
 
             downward = s[i - 1][j] - down_p
             rightward = s[i][j - 1] - right_p
@@ -321,8 +325,12 @@ def sequence_alignment_scored(s1, s2, p, ep, subm, atype="global"):
                 trace.setdefault((i,j), []).append(((i - 1, j - 1), "diag"))
             if max_p == downward:
                 trace.setdefault((i,j), []).append(((i - 1,j), "down"))
+                # if ext and len(trace[(i - 1,j)]) > 1:
+                #     trace[(i - 1,j)] = ((i - 2, j), "down")
             if max_p == rightward:
                 trace.setdefault((i,j), []).append(((i,j - 1), "right"))
+                # if ext and len(trace[(i, j - 1)]) > 1:
+                #     trace[(i, j - 1)] = ((i, j - 2), "right")
             if local:
                 if max_p == 0:
                     trace.setdefault((i,j), []).append(((0,0), "free"))
@@ -379,10 +387,10 @@ def output_alignment_scored(s1, s2, p, ep, atype="global", subm_name=None):
         print "edit distance: " + str(a[2])
 
 
-# t2 = "PRTEINS"
-# t1 = "PRTWPSEIN"
-t2 = "WDANASYNYDMNDKFQIICRANYNQHLPNPEGIHKDEPKSNWMGKLHNMKNFDQWFEHAEIGMKMYITMLQPLTRIPSVQKKLDFAGN"
-t1 = "WDANASYNYTIICRANYNTHLPNGNFDQWFMHAEIGMKMYDTLQPFMWYCEYRIPCKNDHRIAGASMNKMSLQKKLDFAGN"
+# t1 = "PRTEINS"
+# t2 = "PRTWPSEIN"
+t1 = "YHFDVPDCWAHRYWVENPQAIAQMEQICFNWFPSMMMKQPHVFKVDHHMSCRWLPIRGKKCSSCCTRMRVRTVWE"
+t2 = "YHEDVAHEDAIAQMVNTFGFVWQICLNQFPSMMMKIYWIAVLSAHVADRKTWSKHMSCRWLPIISATCARMRVRTVWE"
 output_alignment_scored(t1, t2, 11, 1, "global", "blossum62")
 # construct_alignment_graph(t1, t2, -5, read_subm())
 
