@@ -1,6 +1,7 @@
 __author__ = 'natalia'
 from translation import get_file_w
 from translation import get_file
+from itertools import cycle
 
 
 def greedy_sorting(p, out=None):
@@ -50,12 +51,58 @@ def count_permutation(p):
             perm += 1
 
 
-# greedy_sorting([-3, +4, +1, +5, -2], get_file_w("/data/greedy_sort_out.txt"))
-# get_file_w("/data/greedy_sort_out.txt").write("teste")
+def chromosome_to_cycle(chromosome):
+    nodes = [None for _ in range(len(chromosome)*2)]
+    for j in range(len(chromosome)):
+        i = chromosome[j]
+        if i > 0:
+            nodes[2*j] = 2*i - 1
+            nodes[2*j + 1] = 2*i
+        else:
+            nodes[2*j] = -2*i
+            nodes[2*j + 1] = -2*i -1
+    return nodes
 
-# print count_breaks([+3, +4, +5, -12, -8, -7, -6, +1, +2, +10, +9, -11, +13, +14])
 
-permut = []
-for n in get_file("/data/number_of_breaks.txt").readline().split(" "):
-    permut.append(int(n))
-print count_breaks(permut)
+def cycle_to_chromossome(nodes):
+    chromossome = [0 for n in range(len(nodes)/2)]
+    for j in range(len(nodes)/2):
+        if nodes[2*j] < nodes[2*j + 1]:
+            chromossome[j] = nodes[2*j + 1] / 2
+        else:
+            chromossome[j] = -nodes[2*j] / 2
+    return chromossome
+
+
+def colored_edges(p):
+    edges = []
+    for c in p:
+        nodes = chromosome_to_cycle(c)
+        nodes.append(nodes[0])
+        for j in range(len(c)):
+            edges.append((nodes[2*j+1], nodes[2*j+2]))
+    return edges
+
+
+#XXX what?
+def graph_to_genome(graph):
+    p = []
+    for n in graph:
+        c = cycle_to_chromossome(n)
+        p.append(c)
+    return p
+
+
+# greedy_sorting([+20, +7, +10, +9, +11, +13, +18, -8, -6, -14, +2, -4, -16, +15, +1, +17, +12, -5, +3, -19])
+# print count_breaks([-16, -20, +11, +12, -14, -13, -15, -6, -8, -19, -18, -17, -10, +4, -5, -2, +7, -3, +1, -9])
+
+
+
+
+
+
+
+
+
+
+
